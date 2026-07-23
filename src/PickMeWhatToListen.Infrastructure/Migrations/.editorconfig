@@ -1,0 +1,4 @@
+# EF Core migration scaffolding always emits block-scoped namespaces and isn't
+# hand-edited; don't fail the build over the repo's file-scoped-namespace rule here.
+[*.cs]
+dotnet_diagnostic.IDE0161.severity = silent

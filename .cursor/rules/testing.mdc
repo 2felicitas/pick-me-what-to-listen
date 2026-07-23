@@ -1,0 +1,23 @@
+---
+description: Test project conventions and expectations
+alwaysApply: true
+---
+
+# Testing
+
+- One xUnit test project per `src/` project it covers:
+  `PickMeWhatToListen.Domain.Tests`, `PickMeWhatToListen.Application.Tests`,
+  plus `PickMeWhatToListen.ArchitectureTests` for cross-cutting layer rules
+  (NetArchTest).
+- `Application` tests must not touch a real database — use the
+  `FakeArtistRepository` / `FixedRandomProvider` test doubles under
+  `tests/PickMeWhatToListen.Application.Tests/TestDoubles/` (or add new ones
+  following the same pattern) instead of EF Core / SQLite.
+- `ArchitectureTests` is not optional scaffolding — it's the mechanical
+  enforcement of `ARCHITECTURE.md`. Any change to layer boundaries must come
+  with an updated or new rule there, in the same change.
+- Prefer `[Theory]`/`[InlineData]` over copy-pasted `[Fact]`s for the same
+  behavior with different inputs (see `ArtistTests.Create_ThrowsOnEmptyName`).
+- Run `dotnet test` before considering any change done. CI
+  (`.github/workflows/ci.yml`) runs the full suite plus
+  `dotnet format --verify-no-changes` on `windows-latest`.

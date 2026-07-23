@@ -1,0 +1,31 @@
+---
+description: CommunityToolkit.Mvvm and WPF conventions for the Wpf project
+globs: src/PickMeWhatToListen.Wpf/**
+alwaysApply: false
+---
+
+# MVVM / WPF conventions
+
+- Use `CommunityToolkit.Mvvm`: `[ObservableProperty]` on a private field for
+  bindable state, `[RelayCommand]` on a private method for commands. Don't
+  hand-roll `INotifyPropertyChanged` or `ICommand` implementations.
+- ViewModels depend only on `PickMeWhatToListen.Application` types
+  (`ArtistCatalogService`, `ArtistPickResult`, `Artist`). Never reference
+  `Microsoft.EntityFrameworkCore.*` from a ViewModel or View.
+- **Always fully-qualify `System.Windows.Application`** in this project
+  (e.g. `System.Windows.Application.Current`, and `App : System.Windows.Application`
+  in `App.xaml.cs`). The sibling `PickMeWhatToListen.Application` project
+  namespace shadows the unqualified `Application` name for every type under
+  `PickMeWhatToListen.Wpf`, because C# namespace-member lookup wins over
+  using-directives — this is a compile error (`CS0118`), not a style nit.
+- The DI composition root lives entirely in `App.xaml.cs`
+  (`HostApplicationBuilder` + `services.AddInfrastructure()`). Windows and
+  ViewModels are resolved from the container (constructor injection), not
+  `new`'d up in code-behind.
+- `InvariantGlobalization` is explicitly `false` in this project's `.csproj`
+  even though the repo default (`Directory.Build.props`) is `true` — WPF's
+  binding engine needs real culture data at startup. Don't remove that
+  override.
+- Keep code-behind (`*.xaml.cs`) limited to `InitializeComponent`, setting
+  `DataContext`, and forwarding lifecycle events (e.g. `Loaded`) into the
+  ViewModel. No business logic.

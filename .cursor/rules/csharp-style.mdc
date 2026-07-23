@@ -1,0 +1,31 @@
+---
+description: C# style conventions for this repo
+globs: **/*.cs
+alwaysApply: false
+---
+
+# C# style
+
+Most of this is enforced mechanically by `.editorconfig` +
+`EnforceCodeStyleInBuild=true` (violations are build errors, not just IDE
+squiggles) — if `dotnet build` is clean, you're already compliant. A few
+things worth knowing explicitly:
+
+- File-scoped namespaces everywhere (`namespace Foo.Bar;`), except
+  `src/PickMeWhatToListen.Infrastructure/Migrations/**` — EF Core scaffolds
+  those with block-scoped namespaces and they're not hand-edited; that
+  folder has its own `.editorconfig` override, don't "fix" it.
+- `Nullable` is enabled repo-wide. Don't suppress warnings with `!` unless
+  you've actually proven non-null at that point (and prefer a comment when
+  it's not obvious why).
+- Prefer primary constructors for simple dependency-holding classes (see
+  `ArtistCatalogService`, `EfArtistRepository`) over explicit constructors
+  with backing fields.
+- Prefer immutable read-only view models / DTOs (e.g. `ArtistRowViewModel`)
+  over `ObservableObject` when the object is just a display snapshot
+  rebuilt wholesale on every reload — reserve `[ObservableProperty]` for
+  values that actually change in place (see `.cursor/rules/mvvm-wpf.mdc`).
+- Don't add comments that narrate what the code does. Comments should
+  explain non-obvious *why* (invariants, gotchas, workarounds for library
+  limitations) — see `ArtistConfiguration.cs` for the kind of comment that
+  earns its place.

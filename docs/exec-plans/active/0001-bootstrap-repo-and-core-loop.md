@@ -1,0 +1,93 @@
+# 0001-bootstrap-repo-and-core-loop
+
+Status: Active
+Spec: [docs/product-specs/core-loop.md](../../product-specs/core-loop.md)
+
+## Goal
+
+Bootstrap the repository from empty: .NET 10 / WPF solution skeleton with a
+strict layered architecture, the core add-artist/pick-random loop working
+end-to-end against a real SQLite database, and the harness-engineering repo
+scaffolding (`AGENTS.md`, `ARCHITECTURE.md`, `docs/`, `.cursor/rules/`).
+
+## Scope
+
+- In: solution/project skeleton, `Artist` domain model, `ArtistCatalogService`,
+  EF Core + SQLite persistence, WPF UI, this documentation structure.
+- Out (see `docs/product-specs/future-ideas.md`): discography, release
+  tracking, tagging. Not modeled, not referenced from the schema.
+
+## Plan
+
+- [x] Solution + 4 project skeletons (Domain/Application/Infrastructure/Wpf),
+      `global.json`, `Directory.Build.props`, `.editorconfig`.
+- [x] `Artist` entity, `IArtistRepository`, `ArtistCatalogService` + unit tests.
+- [x] `AppDbContext`, `EfArtistRepository`, initial EF Core migration, AppData
+      SQLite file wiring.
+- [x] `MainWindow`/`MainViewModel` (CommunityToolkit.Mvvm) + Generic Host
+      composition root in `App.xaml.cs`; add-artist / pick-random UI.
+- [ ] xUnit `PickMeWhatToListen.ArchitectureTests` project with NetArchTest
+      rules enforcing the layer + EF-leakage boundaries described in
+      `ARCHITECTURE.md`. **Deliberately paused** — see note below.
+- [x] `AGENTS.md`, `ARCHITECTURE.md`, `docs/` tree, `.cursor/rules/*.mdc` (this pass).
+- [ ] `.github/workflows/ci.yml` (windows-latest: restore/build/test/format check).
+
+> Note: architecture tests and CI were intentionally deferred mid-session at
+> the user's request, to prioritize getting the harness-engineering docs
+> written while the core loop context was fresh. They're still needed to
+> close this plan out — see Open items below.
+
+## Decisions & deviations log
+
+- **`SQLitePCLRaw.bundle_e_sqlite3` pinned to 3.0.4.** `Microsoft.EntityFrameworkCore.Sqlite`
+  10.0.10 pulls in `SQLitePCLRaw.lib.e_sqlite3` 2.1.11 transitively, which has
+  a known high-severity advisory (`GHSA-2m69-gcr7-jv3q`, NU1903 warning).
+  Added an explicit `PackageReference` override in
+  `PickMeWhatToListen.Infrastructure.csproj`.
+- **`System.Windows.Application` must be fully-qualified in `Wpf`.** Naming
+  the Application layer project `PickMeWhatToListen.Application` (as
+  specified) causes `CS0118` in `App.xaml.cs`: C# namespace-member lookup
+  finds the sibling `PickMeWhatToListen.Application` namespace before it
+  considers the `using System.Windows;` directive, so unqualified
+  `Application` resolves to the namespace, not the WPF base class. Kept the
+  approved project name and fixed the call site instead of renaming the
+  project; documented as a standing gotcha in `.cursor/rules/mvvm-wpf.mdc`
+  and `ARCHITECTURE.md` rather than a one-off fix, since it'll bite again
+  anywhere `Application.Current` is used.
+- **`InvariantGlobalization=false` override in `PickMeWhatToListen.Wpf.csproj`.**
+  `Directory.Build.props` sets `InvariantGlobalization=true` repo-wide. WPF's
+  data-binding engine calls `XmlLanguage.GetSpecificCulture()` on first
+  window show and crashes (`InvalidOperationException: Cannot find
+  non-neutral culture related to 'en-us'`) under invariant globalization.
+  Confirmed by running the built exe directly. Overridden per-project rather
+  than removing the repo-wide default, since Domain/Application/Infrastructure/tests
+  have no globalization needs.
+- **Timestamps stored as UTC ticks (`long`), not `DateTimeOffset`, in SQLite.**
+  `Microsoft.EntityFrameworkCore.Sqlite` throws
+  `NotSupportedException: SQLite does not support expressions of type
+  'DateTimeOffset' in ORDER BY clauses` the first time a query orders by
+  `CreatedAtUtc` — this only surfaces at query execution time, not at
+  migration/build time, so it wasn't caught until the first real run of the
+  app. Fixed with an EF Core value conversion
+  (`HasConversion(v => v.UtcTicks, v => new DateTimeOffset(v, TimeSpan.Zero))`)
+  in `ArtistConfiguration`, keeping `DateTimeOffset` as the domain-facing
+  type. Regenerated the `InitialCreate` migration after the fix (no real
+  user data existed yet).
+- **`IDbContextFactory<AppDbContext>` instead of an injected `AppDbContext`.**
+  WPF has no natural per-operation DI scope the way ASP.NET Core requests
+  do, and `DbContext` isn't thread-safe to hold as a singleton. Used
+  `AddDbContextFactory` + `CreateDbContextAsync()` per repository call
+  instead (confirmed as the documented pattern for this scenario via the
+  EF Core docs, not assumed from memory).
+- **`ArtistPickResult` instead of throwing on an empty pool.** "No unpicked
+  artists left" is an expected UI state (shown as a message), not an error
+  condition, so `PickRandomAsync` returns a result object rather than
+  throwing.
+
+## Open items / follow-ups
+
+- Add `PickMeWhatToListen.ArchitectureTests` (NetArchTest) — layer direction
+  + "no EF Core outside Infrastructure" rules described in `ARCHITECTURE.md`
+  are currently only documented, not mechanically checked.
+- Add `.github/workflows/ci.yml`.
+- Generate `docs/generated/db-schema.md` from the current migration (placeholder only for now).

@@ -1,0 +1,27 @@
+---
+description: Spec-first workflow, exec plans, and third-party dependency lookups
+alwaysApply: true
+---
+
+# Docs & planning workflow
+
+This repo treats `docs/` as the system of record, not this file — see
+`AGENTS.md` for the full map. Concretely:
+
+- Any non-trivial change starts with a spec in `docs/product-specs/`
+  (or an update to an existing one) before code.
+- Create an exec plan in `docs/exec-plans/active/` (copy
+  `docs/exec-plans/_template.md`) for anything more than a one-file fix.
+  Keep it updated as you go (decisions, deviations from the original plan,
+  what's still open) — it's a working log, not a one-time write. Move it to
+  `docs/exec-plans/completed/` once the work is merged.
+- Known but deliberately-deferred issues go in
+  `docs/exec-plans/tech-debt-tracker.md`, not just a TODO comment in code.
+- **Before adding any third-party dependency**, look up its current docs via
+  Context7 (don't rely on training-data memory of its API — it may be
+  stale). If the usage pattern isn't a one-liner, snapshot what you learned
+  under `docs/references/`.
+- If you hit a non-obvious library limitation or gotcha (e.g. "SQLite can't
+  ORDER BY DateTimeOffset"), don't just work around it silently — record the
+  gotcha in the relevant `.cursor/rules/*.mdc` file and/or `ARCHITECTURE.md`
+  so the next agent run doesn't rediscover it the hard way.

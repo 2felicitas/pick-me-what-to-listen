@@ -1,0 +1,32 @@
+---
+description: Layer dependency direction and composition-root boundaries for this repo
+alwaysApply: true
+---
+
+# Architecture boundaries
+
+Full diagram and rationale: `ARCHITECTURE.md`. Summary, one-way only:
+
+```
+Domain <- Application <- Infrastructure
+                       <- Wpf
+```
+
+- `PickMeWhatToListen.Domain` must never reference any other project.
+- `PickMeWhatToListen.Application` must never reference `Infrastructure` or `Wpf`.
+- Nothing outside `PickMeWhatToListen.Infrastructure` may reference
+  `Microsoft.EntityFrameworkCore.*` — not even a `using` for a type name.
+  If a ViewModel needs data, add/extend a method on `ArtistCatalogService`
+  or a port interface in `Application/Abstractions`, and implement it in
+  `Infrastructure`.
+- `Wpf` is the only composition root. DI registration lives in
+  `App.xaml.cs` (calls `services.AddInfrastructure()`) — don't scatter
+  `new EfArtistRepository(...)`-style manual wiring elsewhere.
+- No business logic in XAML code-behind (`*.xaml.cs`). Code-behind may only
+  do view-local plumbing (`InitializeComponent`, wiring `DataContext`,
+  `Loaded` handlers that call into the ViewModel). Everything else belongs
+  in a ViewModel or an `Application` service.
+
+These rules are meant to be enforced mechanically by
+`tests/PickMeWhatToListen.ArchitectureTests` (NetArchTest) — if you touch a
+layer boundary, update or add a rule there, don't just rely on this file.

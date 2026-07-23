@@ -1,0 +1,38 @@
+---
+description: EF Core / SQLite conventions for the Infrastructure project
+globs: src/PickMeWhatToListen.Infrastructure/**
+alwaysApply: false
+---
+
+# EF Core / SQLite conventions
+
+- Use `IDbContextFactory<AppDbContext>` (`AddDbContextFactory` in
+  `ServiceCollectionExtensions.AddInfrastructure`), not an injected
+  long-lived `AppDbContext`. Every repository method should create its own
+  short-lived context via `await using var db = await dbContextFactory.CreateDbContextAsync(ct);`.
+  This is the documented pattern for apps without a per-operation DI scope
+  (see EF Core docs on `DbContext` lifetime); don't "simplify" it back to a
+  singleton `DbContext`.
+- Entity configuration goes in an `IEntityTypeConfiguration<T>` class
+  (`ArtistConfiguration`), applied via
+  `modelBuilder.ApplyConfigurationsFromAssembly(...)` — don't inline
+  Fluent API in `OnModelCreating`.
+- **SQLite can't translate `ORDER BY`/comparisons over `DateTimeOffset`**
+  columns (`NotSupportedException` at query time). Store timestamps as UTC
+  ticks (`long`) via `HasConversion(v => v.UtcTicks, v => new DateTimeOffset(v, TimeSpan.Zero))`
+  and keep the CLR property as `DateTimeOffset` in the domain model — see
+  `ArtistConfiguration.cs`. Apply the same conversion to any new
+  `DateTimeOffset`/`DateTimeOffset?` column.
+- Repository interfaces live in `Application/Abstractions`; implementations
+  here must not leak EF Core types (`DbSet<T>`, `IQueryable<T>`,
+  `EntityEntry`, ...) through their public surface.
+- Migrations: run from this project directory —
+  `cd src/PickMeWhatToListen.Infrastructure && dotnet ef migrations add <Name> --output-dir Migrations`.
+  `AppDbContextFactory` (`IDesignTimeDbContextFactory<AppDbContext>`) exists
+  so this works without booting the WPF host — don't delete it.
+- Apply migrations with `Database.MigrateAsync()` (via
+  `DatabaseMigrator.MigrateAsync`), never `EnsureCreated()` — the whole
+  point is that future schema changes (discography, tags, albums) are
+  additive migrations against real user data, not a re-seed.
+- After changing the model, regenerate `docs/generated/db-schema.md` to
+  match the new migration.

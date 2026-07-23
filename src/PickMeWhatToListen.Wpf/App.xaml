@@ -1,0 +1,11 @@
+﻿<Application x:Class="PickMeWhatToListen.Wpf.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:PickMeWhatToListen.Wpf"
+             xmlns:converters="clr-namespace:PickMeWhatToListen.Wpf.Converters">
+    <!-- No StartupUri: MainWindow is resolved from the DI container and shown from OnStartup. -->
+    <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:NullOrEmptyToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,77 @@
+﻿<Window x:Class="PickMeWhatToListen.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Кого послушать?"
+        Height="520" Width="420" MinHeight="420" MinWidth="360"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <Button DockPanel.Dock="Right"
+                    Content="Добавить"
+                    Margin="8,0,0,0"
+                    Padding="12,4"
+                    Command="{Binding AddArtistCommand}"/>
+            <TextBox VerticalContentAlignment="Center"
+                     Padding="4"
+                     Text="{Binding NewArtistName, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Return" Command="{Binding AddArtistCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+        </DockPanel>
+
+        <ListBox Grid.Row="1" ItemsSource="{Binding Artists}" BorderThickness="1">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="2">
+                        <TextBlock Width="20"
+                                   Text="&#x2714;"
+                                   Foreground="Green"
+                                   Visibility="{Binding IsPicked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <TextBlock Text="{Binding Name}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPicked}" Value="True">
+                                            <Setter Property="Foreground" Value="Gray"/>
+                                            <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Row="2" Margin="0,12,0,0">
+            <TextBlock HorizontalAlignment="Center"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Text="{Binding LastPickedArtistName, StringFormat='Сегодня слушаем: {0}'}"
+                       Visibility="{Binding LastPickedArtistName, Converter={StaticResource NullToVisibilityConverter}}"/>
+            <TextBlock HorizontalAlignment="Center"
+                       Foreground="OrangeRed"
+                       TextWrapping="Wrap"
+                       Text="{Binding StatusMessage}"
+                       Visibility="{Binding StatusMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+        </StackPanel>
+
+        <Button Grid.Row="3"
+                Margin="0,12,0,0"
+                Padding="12,8"
+                Content="Выбрать случайного"
+                Command="{Binding PickRandomCommand}"/>
+    </Grid>
+</Window>

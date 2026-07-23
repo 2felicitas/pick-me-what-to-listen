@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PickMeWhatToListen.Application/PickMeWhatToListen.Application.csproj" />
+    <Project Path="src/PickMeWhatToListen.Domain/PickMeWhatToListen.Domain.csproj" />
+    <Project Path="src/PickMeWhatToListen.Infrastructure/PickMeWhatToListen.Infrastructure.csproj" />
+    <Project Path="src/PickMeWhatToListen.Wpf/PickMeWhatToListen.Wpf.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PickMeWhatToListen.Application.Tests/PickMeWhatToListen.Application.Tests.csproj" />
+    <Project Path="tests/PickMeWhatToListen.ArchitectureTests/PickMeWhatToListen.ArchitectureTests.csproj" />
+    <Project Path="tests/PickMeWhatToListen.Domain.Tests/PickMeWhatToListen.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -37,15 +37,6 @@ get specced, without needing a redesign each time. Will need
 `.cursor/rules/csharp-style.mdc`) to carry an `Id` the panel can select on,
 and a single-artist read path on `ArtistCatalogService`.
 
-## Standalone executable distribution
-
-Today the app only runs via `dotnet run --project src/PickMeWhatToListen.Wpf`
-(requires the .NET SDK). Publish a `.exe` so it can be launched by
-double-click without a dev environment installed. Needs a decision between
-self-contained (bigger output, no runtime dependency on the target machine)
-and framework-dependent (smaller, requires the .NET 10 desktop runtime)
-`dotnet publish` output — not chosen yet.
-
 ## Random-pick animation
 
 The "pick random" action should have the slot-machine/roulette-style

@@ -18,4 +18,17 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <!--
+    Standalone .exe publish shape (see docs/product-specs/standalone-exe.md).
+    Self-contained + single-file so the app runs on a clean Windows machine
+    with no separate .NET runtime install. RuntimeIdentifier is fixed to
+    win-x64 rather than left portable, since PublishSingleFile requires a
+    concrete RID and this is a Windows-only WPF app.
+  -->
+  <PropertyGroup>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+  </PropertyGroup>
+
 </Project>

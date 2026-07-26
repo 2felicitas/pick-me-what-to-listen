@@ -27,6 +27,18 @@ dotnet test
 dotnet run --project src/PickMeWhatToListen.Wpf
 ```
 
+To produce a standalone `.exe` that runs without a .NET SDK installed (see
+[docs/product-specs/standalone-exe.md](docs/product-specs/standalone-exe.md)):
+
+```
+dotnet publish src/PickMeWhatToListen.Wpf -c Release
+```
+
+The self-contained, single-file `win-x64` exe lands in
+`src/PickMeWhatToListen.Wpf/bin/Release/net10.0-windows/win-x64/publish/`
+alongside a handful of native WPF/SQLite DLLs that can't be bundled into
+the single file — copy the whole `publish` folder, not just the `.exe`.
+
 EF Core migrations live in `src/PickMeWhatToListen.Infrastructure/Migrations`.
 To add one after changing the model:
 

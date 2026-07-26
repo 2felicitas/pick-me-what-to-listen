@@ -42,3 +42,13 @@ dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 dotnet_naming_style.underscore_prefix.required_prefix = _
 dotnet_naming_style.underscore_prefix.capitalization = camel_case
+
+# Naming: const fields as PascalCase (const is a stricter subset of "field" than
+# the private-fields rule above, so it wins automatically regardless of file
+# order — see https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/naming-rules)
+dotnet_naming_rule.constant_fields_pascal_case.severity = warning
+dotnet_naming_rule.constant_fields_pascal_case.symbols = constant_fields
+dotnet_naming_rule.constant_fields_pascal_case.style = pascal_case_style
+dotnet_naming_symbols.constant_fields.applicable_kinds = field
+dotnet_naming_symbols.constant_fields.required_modifiers = const
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case

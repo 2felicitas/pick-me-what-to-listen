@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using PickMeWhatToListen.Wpf.ViewModels;
 
 namespace PickMeWhatToListen.Wpf;

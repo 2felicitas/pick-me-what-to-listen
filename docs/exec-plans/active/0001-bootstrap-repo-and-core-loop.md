@@ -83,6 +83,21 @@ scaffolding (`AGENTS.md`, `ARCHITECTURE.md`, `docs/`, `.cursor/rules/`).
   artists left" is an expected UI state (shown as a message), not an error
   condition, so `PickRandomAsync` returns a result object rather than
   throwing.
+- **Fixed pre-existing `dotnet format --verify-no-changes` failures before
+  adding CI.** Before writing `ci.yml`, ran the exact check CI will run and
+  found it already failing on code untouched by this session: `App.xaml.cs`,
+  `MainWindow.xaml.cs`, and the `InitialCreate` migration had a UTF-8 BOM
+  (VS/`dotnet ef` scaffolding default) vs. the repo's `charset = utf-8` (no
+  BOM); `AssemblyInfo.cs` had template whitespace that didn't match
+  `.editorconfig`; and `AppDataDatabasePathProvider`'s `const` fields
+  tripped `IDE1006` because the private-fields naming rule has no `const`
+  carve-out. None of this was caught before because `dotnet build` doesn't
+  run the whitespace/charset formatter, and there was no CI to run
+  `dotnet format` until now. Fixed with `dotnet format whitespace` (BOM +
+  whitespace) and a new `constant_fields_pascal_case` naming rule in
+  `.editorconfig`; documented as a standing gotcha in
+  `.cursor/rules/csharp-style.mdc` so future scaffolded files don't
+  reintroduce it silently.
 
 ## Open items / follow-ups
 

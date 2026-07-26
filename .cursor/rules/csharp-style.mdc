@@ -29,3 +29,19 @@ things worth knowing explicitly:
   explain non-obvious *why* (invariants, gotchas, workarounds for library
   limitations) — see `ArtistConfiguration.cs` for the kind of comment that
   earns its place.
+- **New files scaffolded by Visual Studio/`dotnet new` tooling (WPF
+  code-behind, `dotnet ef migrations add` output) are often saved as UTF-8
+  *with* BOM**, but the repo's `.editorconfig` requires `charset = utf-8`
+  (no BOM). This passes `dotnet build` silently (charset isn't a Roslyn
+  analyzer) but fails `dotnet format --verify-no-changes` — the exact check
+  CI runs — with a `CHARSET` error, only discovered the first time CI
+  actually runs, not at scaffolding time. Run `dotnet format whitespace`
+  after generating any new file this way, before committing.
+- **`const` fields need their own naming rule**, separate from the general
+  private-fields rule (`dotnet_naming_rule.private_fields_underscore` in
+  `.editorconfig`) — otherwise `IDE1006` fires because `const` matches the
+  "field" symbol kind but shouldn't take the `_camelCase` style meant for
+  instance fields. See `dotnet_naming_rule.constant_fields_pascal_case` in
+  `.editorconfig`; rule precedence between the two is resolved automatically
+  by specificity (Roslyn orders by modifier/accessibility/symbol subset, not
+  file order — no need to reorder them by hand if you add a third case).

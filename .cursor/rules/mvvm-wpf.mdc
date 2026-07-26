@@ -22,10 +22,10 @@ alwaysApply: false
   (`HostApplicationBuilder` + `services.AddInfrastructure()`). Windows and
   ViewModels are resolved from the container (constructor injection), not
   `new`'d up in code-behind.
-- `InvariantGlobalization` is explicitly `false` in this project's `.csproj`
-  even though the repo default (`Directory.Build.props`) is `true` — WPF's
-  binding engine needs real culture data at startup. Don't remove that
-  override.
+- The repo runs with `InvariantGlobalization=false` (see
+  `Directory.Build.props`) specifically because WPF's binding engine needs
+  real culture data at startup (`XmlLanguage.GetSpecificCulture` crashes
+  under invariant mode) — don't turn it back on.
 - Keep code-behind (`*.xaml.cs`) limited to `InitializeComponent`, setting
   `DataContext`, and forwarding lifecycle events (e.g. `Loaded`) into the
   ViewModel. No business logic.

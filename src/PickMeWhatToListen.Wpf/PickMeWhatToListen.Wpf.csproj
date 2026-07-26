@@ -16,9 +16,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <!-- WPF's data-binding engine needs real culture data (XmlLanguage.GetSpecificCulture);
-         invariant globalization mode (set repo-wide in Directory.Build.props) crashes it at startup. -->
-    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 
 </Project>

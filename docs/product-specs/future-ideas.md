@@ -27,18 +27,6 @@ recommendation, etc.), likely many-to-many. Could double as a filter for
 — if so, that changes the `ArtistCatalogService.PickRandomAsync` signature,
 which should be called out explicitly in whatever spec picks this up.
 
-## Bulk import from a text file
-
-Add many artists at once from a plain text file (one name per line), as an
-alternative to the single-name add flow already in the UI. Both paths
-(single add and bulk import) should reject names that already exist in the
-catalog using a *normalized* comparison, not just an exact string match —
-case, whitespace, apostrophe variants ('/'/`), е/ё, and look-alike
-transliterated characters (e.g. `s`/`ş`) should all count as the same
-artist. This is the concrete trigger for the "Duplicate artist names are
-allowed" entry in `docs/exec-plans/tech-debt-tracker.md`: today there's no
-matching logic at all, exact or fuzzy.
-
 ## Artist profile panel
 
 Clicking a row in the artist list opens a detail view — e.g. docked to the

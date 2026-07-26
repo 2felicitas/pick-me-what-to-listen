@@ -45,3 +45,11 @@ things worth knowing explicitly:
   `.editorconfig`; rule precedence between the two is resolved automatically
   by specificity (Roslyn orders by modifier/accessibility/symbol subset, not
   file order — no need to reorder them by hand if you add a third case).
+- **`string.Normalize()`/`CharUnicodeInfo` need `InvariantGlobalization=false`
+  to actually do anything.** Under invariant globalization mode,
+  `string.Normalize(...)` silently returns its input unchanged instead of
+  throwing — there's no compile- or even test-time signal that it's a
+  no-op, only wrong runtime output. This is why the repo runs with
+  `InvariantGlobalization=false` (see `Directory.Build.props`); relevant
+  again if you touch `ArtistNameNormalizer`, which relies on Unicode NFD
+  decomposition to strip diacritics.

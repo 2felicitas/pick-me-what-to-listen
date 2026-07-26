@@ -5,7 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- NOT invariant: Wpf needs real culture data (see its .csproj), and
+         ArtistNameNormalizer (Domain) needs a working string.Normalize —
+         which is a documented no-op under invariant globalization mode, see
+         .cursor/rules/csharp-style.mdc. Since the shipped app (Wpf) already
+         requires non-invariant mode, opting out repo-wide has no footprint
+         benefit and only creates footguns in test hosts that forget to
+         override it. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <Authors>PickMeWhatToListen</Authors>

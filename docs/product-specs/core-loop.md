@@ -10,9 +10,10 @@ suggestion from the ones not yet listened to.
 ## Behavior
 
 - **Add artist**: user enters a name and adds it to the catalog. Name is
-  required, trimmed, max 200 characters. Duplicate names are currently
-  allowed (no uniqueness constraint) — revisit if this becomes annoying in
-  practice.
+  required, trimmed, max 200 characters. Adding a name that already exists
+  in the catalog (under a normalized comparison — see
+  `docs/product-specs/bulk-import.md`) is rejected with a message; it does
+  not create a second entry.
 - **Pick random**: draws a random artist from those with `IsPicked == false`
   and marks it `IsPicked = true` permanently (with a `PickedAtUtc`
   timestamp). If there are no unpicked artists left, the UI shows a message

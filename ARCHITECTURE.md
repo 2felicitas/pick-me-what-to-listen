@@ -89,10 +89,13 @@ shadows the unqualified `Application` name for every type declared under
 using-directives. See `App.xaml.cs` for the fix in practice and
 `.cursor/rules/mvvm-wpf.mdc` for the rule.
 
-**Gotcha:** `InvariantGlobalization` is `false` for this project even though
-`Directory.Build.props` sets it `true` repo-wide — WPF's data-binding engine
-calls `XmlLanguage.GetSpecificCulture()` at startup and crashes under
-invariant globalization.
+**Gotcha:** the repo runs with `InvariantGlobalization=false` (see
+`Directory.Build.props`) because WPF's data-binding engine calls
+`XmlLanguage.GetSpecificCulture()` at startup and crashes under invariant
+globalization. This also happens to be required for
+`PickMeWhatToListen.Domain.ArtistNameNormalizer`'s Unicode diacritic
+stripping to work at all — `string.Normalize()` silently no-ops under
+invariant globalization instead of throwing, so this bit twice independently.
 
 ## Persistence model (current)
 

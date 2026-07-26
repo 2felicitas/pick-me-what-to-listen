@@ -26,3 +26,54 @@ recommendation, etc.), likely many-to-many. Could double as a filter for
 `PickRandomAsync` (e.g. "pick a random unpicked artist tagged 'electronic'")
 — if so, that changes the `ArtistCatalogService.PickRandomAsync` signature,
 which should be called out explicitly in whatever spec picks this up.
+
+## Bulk import from a text file
+
+Add many artists at once from a plain text file (one name per line), as an
+alternative to the single-name add flow already in the UI. Both paths
+(single add and bulk import) should reject names that already exist in the
+catalog using a *normalized* comparison, not just an exact string match —
+case, whitespace, apostrophe variants ('/'/`), е/ё, and look-alike
+transliterated characters (e.g. `s`/`ş`) should all count as the same
+artist. This is the concrete trigger for the "Duplicate artist names are
+allowed" entry in `docs/exec-plans/tech-debt-tracker.md`: today there's no
+matching logic at all, exact or fuzzy.
+
+## Artist profile panel
+
+Clicking a row in the artist list opens a detail view — e.g. docked to the
+side of the main window — showing that artist's info. Only the name exists
+today, but the panel should grow to surface discography/tags/etc. as those
+get specced, without needing a redesign each time. Will need
+`ArtistRowViewModel` (currently a stateless display snapshot, see
+`.cursor/rules/csharp-style.mdc`) to carry an `Id` the panel can select on,
+and a single-artist read path on `ArtistCatalogService`.
+
+## Standalone executable distribution
+
+Today the app only runs via `dotnet run --project src/PickMeWhatToListen.Wpf`
+(requires the .NET SDK). Publish a `.exe` so it can be launched by
+double-click without a dev environment installed. Needs a decision between
+self-contained (bigger output, no runtime dependency on the target machine)
+and framework-dependent (smaller, requires the .NET 10 desktop runtime)
+`dotnet publish` output — not chosen yet.
+
+## Random-pick animation
+
+The "pick random" action should have the slot-machine/roulette-style
+animation from an earlier version of this app: a "barrel" of progressively
+smaller rows (5–7) showing candidate names spins, decelerates, and settles
+on the picked artist landing in the center — similar in feel to
+Hearthstone's card-back reveal animation. Purely a `PickMeWhatToListen.Wpf`
+concern (no `Domain`/`Application` impact expected) once specced; the part
+worth preserving deliberately is the "spin, slow down, land in the center"
+feel, not the exact row count or sizing.
+
+## Visual design pass
+
+The UI has had no deliberate design work yet — current windows are
+functional wireframes, not a styled experience. Once the smaller ideas
+above (profile panel, animation) have taken some shape, do a real design
+pass over layout, spacing, color, typography, and overall WPF
+look-and-feel across every screen, rather than styling each feature ad hoc
+as it's built.

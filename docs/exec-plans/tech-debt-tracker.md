@@ -7,6 +7,9 @@ why it was accepted, and what would trigger fixing it.
 
 `ArtistCatalogService.AddArtistAsync` has no uniqueness check. Accepted for
 the MVP since it's a personal catalog tool. **Trigger to fix:** if it turns
-out to be annoying in practice, or once tagging/discography make duplicate
+out to be annoying in practice, once tagging/discography make duplicate
 entries actually ambiguous (e.g. two different "Autechre" rows with
-different tags).
+different tags), or when "Bulk import from a text file"
+(`docs/product-specs/future-ideas.md`) is picked up — that spec explicitly
+wants normalized (not just exact) duplicate detection for both the
+single-add and bulk-import paths.

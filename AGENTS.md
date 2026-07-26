@@ -38,6 +38,13 @@ dotnet ef migrations add <Name> --output-dir Migrations
 The SQLite catalog file lives at `%AppData%\PickMeWhatToListen\catalog.db` and
 is created/migrated automatically on app startup — never commit it.
 
+To wipe your local catalog (no in-app "clear all" action exists yet), close
+the app and delete that file — it's recreated via migrations next launch:
+
+```
+Remove-Item "$env:AppData\PickMeWhatToListen\catalog.db"
+```
+
 ## Workflow for any non-trivial change
 
 1. Add/update a spec in `docs/product-specs/`.

@@ -26,15 +26,15 @@ scaffolding (`AGENTS.md`, `ARCHITECTURE.md`, `docs/`, `.cursor/rules/`).
       SQLite file wiring.
 - [x] `MainWindow`/`MainViewModel` (CommunityToolkit.Mvvm) + Generic Host
       composition root in `App.xaml.cs`; add-artist / pick-random UI.
-- [ ] xUnit `PickMeWhatToListen.ArchitectureTests` project with NetArchTest
+- [x] xUnit `PickMeWhatToListen.ArchitectureTests` project with NetArchTest
       rules enforcing the layer + EF-leakage boundaries described in
-      `ARCHITECTURE.md`. **Deliberately paused** — see note below.
+      `ARCHITECTURE.md`.
 - [x] `AGENTS.md`, `ARCHITECTURE.md`, `docs/` tree, `.cursor/rules/*.mdc` (this pass).
 - [ ] `.github/workflows/ci.yml` (windows-latest: restore/build/test/format check).
 
 > Note: architecture tests and CI were intentionally deferred mid-session at
 > the user's request, to prioritize getting the harness-engineering docs
-> written while the core loop context was fresh. They're still needed to
+> written while the core loop context was fresh. CI is still needed to
 > close this plan out — see Open items below.
 
 ## Decisions & deviations log
@@ -98,11 +98,17 @@ scaffolding (`AGENTS.md`, `ARCHITECTURE.md`, `docs/`, `.cursor/rules/`).
   `.editorconfig`; documented as a standing gotcha in
   `.cursor/rules/csharp-style.mdc` so future scaffolded files don't
   reintroduce it silently.
+- **`PickMeWhatToListen.ArchitectureTests` implements exactly the 3 rules
+  already planned in `docs/references/netarchtest.md`** (Domain -> no
+  outer-layer dependency, Application -> no Infrastructure/Wpf dependency,
+  Wpf -> no `Microsoft.EntityFrameworkCore` dependency) via
+  `Types.InAssembly(...).ShouldNot().HaveDependencyOnAny(...)`/
+  `HaveDependencyOn(...)`. Verified the rules actually catch violations (not
+  just trivially green) by temporarily pointing the Wpf/EF-Core rule at
+  `PickMeWhatToListen.Infrastructure` instead — confirmed it fails on the
+  real (allowed) `Wpf -> Infrastructure` dependency — before reverting to
+  the real assertion.
 
 ## Open items / follow-ups
 
-- Add `PickMeWhatToListen.ArchitectureTests` (NetArchTest) — layer direction
-  + "no EF Core outside Infrastructure" rules described in `ARCHITECTURE.md`
-  are currently only documented, not mechanically checked.
 - Add `.github/workflows/ci.yml`.
-- Generate `docs/generated/db-schema.md` from the current migration (placeholder only for now).

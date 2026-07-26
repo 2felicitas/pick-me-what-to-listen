@@ -20,9 +20,9 @@ three projects; `Application` knows only `Domain`; `Infrastructure` and `Wpf`
 both know `Application`, but not each other's internals beyond the DI
 registration surface (`AddInfrastructure()`).
 
-These rules are meant to be checked mechanically by
-`tests/PickMeWhatToListen.ArchitectureTests` (NetArchTest) once that project
-is filled in — see `docs/exec-plans/active/` for status.
+These rules are checked mechanically by
+`tests/PickMeWhatToListen.ArchitectureTests` (NetArchTest) — see
+`LayerDependencyTests.cs`.
 
 ## Project responsibilities
 

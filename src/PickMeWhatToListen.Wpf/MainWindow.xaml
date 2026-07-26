@@ -17,6 +17,11 @@
 
         <DockPanel Grid.Row="0" Margin="0,0,0,12">
             <Button DockPanel.Dock="Right"
+                    Content="Импорт из файла..."
+                    Margin="8,0,0,0"
+                    Padding="12,4"
+                    Command="{Binding ImportFromFileCommand}"/>
+            <Button DockPanel.Dock="Right"
                     Content="Добавить"
                     Margin="8,0,0,0"
                     Padding="12,4"

@@ -1,6 +1,6 @@
 # Bulk import & duplicate detection
 
-Status: In progress (see `docs/exec-plans/active/0002-bulk-import-and-duplicate-detection.md`)
+Status: Implemented (see `docs/exec-plans/completed/0002-bulk-import-and-duplicate-detection.md`)
 
 ## Goal
 

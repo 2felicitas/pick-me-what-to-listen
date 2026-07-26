@@ -1,6 +1,6 @@
 # 0002-bulk-import-and-duplicate-detection
 
-Status: Active
+Status: Completed
 Spec: [docs/product-specs/bulk-import.md](../../product-specs/bulk-import.md)
       (also amends [docs/product-specs/core-loop.md](../../product-specs/core-loop.md) —
       "Add artist" behavior)
@@ -33,13 +33,13 @@ flow that reuses the same duplicate check.
 - [x] `BulkAddArtistsResult` + `ArtistCatalogService.AddArtistsAsync` +
       `Application.Tests` (catalog dupes, in-file dupes, invalid lines,
       blank lines all counted/skipped correctly).
-- [ ] `MainViewModel`: update `AddArtistCommand` to surface the duplicate
+- [x] `MainViewModel`: update `AddArtistCommand` to surface the duplicate
       message; add `ImportFromFileCommand` (native `OpenFileDialog`, reads
       the file, calls the new bulk method, shows the summary).
-- [ ] `MainWindow.xaml`: "Import from file..." button.
-- [ ] Manual smoke test (`dotnet run`) — no ViewModel/UI test coverage
+- [x] `MainWindow.xaml`: "Import from file..." button.
+- [x] Manual smoke test (`dotnet run`) — no ViewModel/UI test coverage
       exists yet in this repo, see `.cursor/rules/testing.mdc`.
-- [ ] Docs: flip `bulk-import.md` status to Implemented, move this plan to
+- [x] Docs: flip `bulk-import.md` status to Implemented, move this plan to
       `completed/`.
 
 ## Decisions & deviations log
@@ -60,7 +60,16 @@ flow that reuses the same duplicate check.
   override it. Removed the override from `Wpf.csproj` now that it matches
   the (new) repo default; updated `ARCHITECTURE.md` and
   `.cursor/rules/mvvm-wpf.mdc`/`csharp-style.mdc` accordingly.
+- **Manual smoke test performed against the real `catalog.db`** (not a
+  disposable one) since bulk import via a native file picker isn't
+  practical to cover with an automated ViewModel test yet (see
+  `.cursor/rules/testing.mdc` — no ViewModel/UI test project exists). User
+  confirmed: bulk import of a real multi-line file produced the expected
+  "Добавлено: N. Пропущено: M ..." summary and refreshed the list; a
+  single-add duplicate attempt was correctly rejected with a message
+  naming the existing entry.
 
 ## Open items / follow-ups
 
-- <fill in when closing out>
+- None open — bulk import and duplicate detection are implemented,
+  tested (unit tests + manual smoke test), and documented.

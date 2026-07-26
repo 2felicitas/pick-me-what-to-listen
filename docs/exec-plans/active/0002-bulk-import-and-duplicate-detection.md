@@ -27,10 +27,10 @@ flow that reuses the same duplicate check.
 - [x] `ArtistNameNormalizer.ToComparisonKey` in Domain + `Domain.Tests`
       covering ё/е, ş/s, apostrophe variants, case/whitespace, and the
       documented non-diacritic limitation (dotless ı vs i NOT unified).
-- [ ] `ArtistAddResult` + duplicate check in
+- [x] `ArtistAddResult` + duplicate check in
       `ArtistCatalogService.AddArtistAsync` + `Application.Tests` (using
       `FakeArtistRepository`).
-- [ ] `BulkAddArtistsResult` + `ArtistCatalogService.AddArtistsAsync` +
+- [x] `BulkAddArtistsResult` + `ArtistCatalogService.AddArtistsAsync` +
       `Application.Tests` (catalog dupes, in-file dupes, invalid lines,
       blank lines all counted/skipped correctly).
 - [ ] `MainViewModel`: update `AddArtistCommand` to surface the duplicate

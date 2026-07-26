@@ -11,12 +11,68 @@ public class ArtistCatalogServiceTests
         var repository = new FakeArtistRepository();
         var service = new ArtistCatalogService(repository, new FixedRandomProvider(0));
 
-        var added = await service.AddArtistAsync("Boards of Canada");
+        var result = await service.AddArtistAsync("Boards of Canada");
 
+        Assert.True(result.Succeeded);
         var all = await repository.GetAllAsync();
         Assert.Single(all);
-        Assert.Equal(added.Id, all[0].Id);
+        Assert.Equal(result.Artist!.Id, all[0].Id);
         Assert.Equal("Boards of Canada", all[0].Name);
+    }
+
+    [Theory]
+    [InlineData("Мёбиус", "Мебиус")] // ё/е
+    [InlineData("Şevval", "Sevval")] // ş/s
+    [InlineData("O'Brien", "O’Brien")] // apostrophe variants
+    [InlineData("aphex twin", "  APHEX   TWIN  ")] // case + whitespace
+    public async Task AddArtistAsync_RejectsNormalizedDuplicate(string existingName, string attemptedName)
+    {
+        var repository = new FakeArtistRepository().Seed(Artist.Create(existingName));
+        var service = new ArtistCatalogService(repository, new FixedRandomProvider(0));
+
+        var result = await service.AddArtistAsync(attemptedName);
+
+        Assert.False(result.Succeeded);
+        Assert.NotNull(result.DuplicateOf);
+        Assert.Equal(existingName, result.DuplicateOf!.Name);
+        Assert.Single(await repository.GetAllAsync());
+    }
+
+    [Fact]
+    public async Task AddArtistAsync_AllowsActuallyDifferentNames()
+    {
+        var repository = new FakeArtistRepository().Seed(Artist.Create("Autechre"));
+        var service = new ArtistCatalogService(repository, new FixedRandomProvider(0));
+
+        var result = await service.AddArtistAsync("Aphex Twin");
+
+        Assert.True(result.Succeeded);
+        Assert.Equal(2, (await repository.GetAllAsync()).Count);
+    }
+
+    [Fact]
+    public async Task AddArtistsAsync_SkipsBlankLinesInvalidLinesAndDuplicates()
+    {
+        var repository = new FakeArtistRepository().Seed(Artist.Create("Autechre"));
+        var service = new ArtistCatalogService(repository, new FixedRandomProvider(0));
+        var tooLong = new string('a', Artist.MaxNameLength + 1);
+
+        var result = await service.AddArtistsAsync(
+        [
+            "Aphex Twin",
+            "",
+            "   ",
+            "AUTECHRE", // duplicate of the seeded artist, case-insensitive
+            "Boards of Canada",
+            "Boards of Canada", // duplicate within the same batch
+            tooLong,
+        ]);
+
+        Assert.Equal(2, result.AddedCount); // Aphex Twin, Boards of Canada
+        Assert.Equal(2, result.SkippedDuplicateCount); // AUTECHRE, second Boards of Canada
+        Assert.Equal(1, result.SkippedInvalidCount); // tooLong
+        var all = await repository.GetAllAsync();
+        Assert.Equal(3, all.Count); // seeded Autechre + the 2 newly added
     }
 
     [Fact]

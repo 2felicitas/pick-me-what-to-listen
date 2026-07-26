@@ -1,6 +1,6 @@
 # 0001-bootstrap-repo-and-core-loop
 
-Status: Active
+Status: Completed
 Spec: [docs/product-specs/core-loop.md](../../product-specs/core-loop.md)
 
 ## Goal
@@ -30,12 +30,12 @@ scaffolding (`AGENTS.md`, `ARCHITECTURE.md`, `docs/`, `.cursor/rules/`).
       rules enforcing the layer + EF-leakage boundaries described in
       `ARCHITECTURE.md`.
 - [x] `AGENTS.md`, `ARCHITECTURE.md`, `docs/` tree, `.cursor/rules/*.mdc` (this pass).
-- [ ] `.github/workflows/ci.yml` (windows-latest: restore/build/test/format check).
+- [x] `.github/workflows/ci.yml` (windows-latest: restore/build/test/format check).
 
 > Note: architecture tests and CI were intentionally deferred mid-session at
 > the user's request, to prioritize getting the harness-engineering docs
-> written while the core loop context was fresh. CI is still needed to
-> close this plan out — see Open items below.
+> written while the core loop context was fresh. Both are now done — see
+> the decisions log below for how each was closed out.
 
 ## Decisions & deviations log
 
@@ -108,7 +108,20 @@ scaffolding (`AGENTS.md`, `ARCHITECTURE.md`, `docs/`, `.cursor/rules/`).
   `PickMeWhatToListen.Infrastructure` instead — confirmed it fails on the
   real (allowed) `Wpf -> Infrastructure` dependency — before reverting to
   the real assertion.
+- **`.github/workflows/ci.yml`: single `windows-latest` job, no matrix.**
+  WPF only builds on Windows, so there's nothing to matrix against. Uses
+  `actions/checkout@v7` and `actions/setup-dotnet@v6` (current major
+  versions as of this pass) with `global-json-file: global.json` so CI and
+  local dev always resolve the same pinned SDK (`10.0.302`,
+  `rollForward: latestFeature`). Steps mirror `AGENTS.md`'s documented local
+  workflow (`restore` -> `build --configuration Release` ->
+  `test --configuration Release` -> `format --verify-no-changes`) — ran the
+  exact same four commands locally before committing to confirm the recipe
+  actually passes end-to-end, since GitHub's Windows runner can't be
+  dry-run locally the way `act` does for Linux jobs.
 
 ## Open items / follow-ups
 
-- Add `.github/workflows/ci.yml`.
+None — this plan is closed out. See `docs/exec-plans/tech-debt-tracker.md`
+for ongoing/deferred concerns unrelated to bootstrap scope (e.g. duplicate
+artist names).

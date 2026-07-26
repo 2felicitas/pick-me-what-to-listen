@@ -3,11 +3,6 @@
 Known, deliberately-deferred issues. Each entry should say what the debt is,
 why it was accepted, and what would trigger fixing it.
 
-## No CI pipeline yet
-
-`.github/workflows/ci.yml` doesn't exist yet. **Trigger to fix:** before
-relying on PR-based review/merge for this repo.
-
 ## Duplicate artist names are allowed
 
 `ArtistCatalogService.AddArtistAsync` has no uniqueness check. Accepted for

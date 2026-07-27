@@ -76,6 +76,31 @@ public class ArtistCatalogServiceTests
     }
 
     [Fact]
+    public async Task GetArtistByIdAsync_ReturnsMatchingArtist()
+    {
+        var artist = Artist.Create("Aphex Twin");
+        var repository = new FakeArtistRepository().Seed(artist);
+        var service = new ArtistCatalogService(repository, new FixedRandomProvider(0));
+
+        var result = await service.GetArtistByIdAsync(artist.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(artist.Id, result!.Id);
+        Assert.Equal("Aphex Twin", result.Name);
+    }
+
+    [Fact]
+    public async Task GetArtistByIdAsync_ReturnsNull_WhenNoArtistHasThatId()
+    {
+        var repository = new FakeArtistRepository().Seed(Artist.Create("Aphex Twin"));
+        var service = new ArtistCatalogService(repository, new FixedRandomProvider(0));
+
+        var result = await service.GetArtistByIdAsync(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task PickRandomAsync_ReturnsNoneLeft_WhenCatalogIsEmpty()
     {
         var repository = new FakeArtistRepository();

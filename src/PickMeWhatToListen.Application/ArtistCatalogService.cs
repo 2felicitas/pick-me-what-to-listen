@@ -12,6 +12,9 @@ public sealed class ArtistCatalogService(IArtistRepository repository, IRandomPr
     public Task<IReadOnlyList<Artist>> GetAllArtistsAsync(CancellationToken cancellationToken = default) =>
         repository.GetAllAsync(cancellationToken);
 
+    public Task<Artist?> GetArtistByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        repository.GetByIdAsync(id, cancellationToken);
+
     public async Task<ArtistAddResult> AddArtistAsync(string name, CancellationToken cancellationToken = default)
     {
         var candidate = Artist.Create(name);

@@ -27,16 +27,6 @@ recommendation, etc.), likely many-to-many. Could double as a filter for
 — if so, that changes the `ArtistCatalogService.PickRandomAsync` signature,
 which should be called out explicitly in whatever spec picks this up.
 
-## Artist profile panel
-
-Clicking a row in the artist list opens a detail view — e.g. docked to the
-side of the main window — showing that artist's info. Only the name exists
-today, but the panel should grow to surface discography/tags/etc. as those
-get specced, without needing a redesign each time. Will need
-`ArtistRowViewModel` (currently a stateless display snapshot, see
-`.cursor/rules/csharp-style.mdc`) to carry an `Id` the panel can select on,
-and a single-artist read path on `ArtistCatalogService`.
-
 ## Random-pick animation
 
 The "pick random" action should have the slot-machine/roulette-style

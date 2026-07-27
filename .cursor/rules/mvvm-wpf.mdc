@@ -29,3 +29,24 @@ alwaysApply: false
 - Keep code-behind (`*.xaml.cs`) limited to `InitializeComponent`, setting
   `DataContext`, and forwarding lifecycle events (e.g. `Loaded`) into the
   ViewModel. No business logic.
+- **A custom `ControlTemplate` with a bare `ContentPresenter` (no `Border`/
+  `Rectangle` around it) is not hit-test visible over its full arranged
+  size** — only wherever its actual content (e.g. `TextBlock` glyphs)
+  paints something. `HorizontalAlignment="Stretch"` on the presenter makes
+  it *occupy* the full width, but doesn't make the empty space around
+  short content clickable. If you need a full-width clickable row (see
+  the artist-list row `Button` in `MainWindow.xaml`), wrap the
+  `ContentPresenter` in a `Border Background="{TemplateBinding
+  Background}"` — `Transparent` still hit-tests, `{x:Null}` doesn't.
+- **Don't rely on `ListBoxItem.IsSelected`/the ListBox's built-in
+  single-selection model for anything the ViewModel also tracks
+  independently** (e.g. a "selected artist" driving a side panel) — the
+  two states will desync (e.g. a row staying visually highlighted after
+  the ViewModel-side selection was cleared through another affordance).
+  Either drive selection entirely through `SelectedItem`/`SelectedValue`
+  bindings, or — if you need custom toggle-on-reclick behavior that plain
+  `SelectionChanged` can't express — strip the container's default
+  template/highlight entirely (see `ArtistRowContainerStyle`) and drive
+  any highlight from the ViewModel's own selection state instead (see
+  `RowIsSelectedConverter`, an `IMultiValueConverter` compared via a
+  `MultiBinding` inside a `DataTrigger`).

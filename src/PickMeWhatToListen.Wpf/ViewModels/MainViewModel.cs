@@ -20,6 +20,9 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
     [ObservableProperty]
     private string? _statusMessage;
 
+    [ObservableProperty]
+    private ArtistProfileViewModel? _selectedArtist;
+
     public async Task InitializeAsync() => await ReloadArtistsAsync();
 
     [RelayCommand]
@@ -94,6 +97,22 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
         StatusMessage = null;
         await ReloadArtistsAsync();
     }
+
+    [RelayCommand]
+    private async Task SelectArtistAsync(Guid id)
+    {
+        if (SelectedArtist?.Id == id)
+        {
+            SelectedArtist = null;
+            return;
+        }
+
+        var artist = await catalogService.GetArtistByIdAsync(id);
+        SelectedArtist = artist is null ? null : new ArtistProfileViewModel(artist);
+    }
+
+    [RelayCommand]
+    private void ClosePanel() => SelectedArtist = null;
 
     private async Task ReloadArtistsAsync()
     {

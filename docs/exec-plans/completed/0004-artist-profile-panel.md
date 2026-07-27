@@ -62,7 +62,17 @@ click-again-or-close-button-to-deselect.
   `Id` to `MainViewModel.SelectedArtist.Id` via a `MultiBinding` inside a
   `Style.Triggers > DataTrigger`) rather than `ListBoxItem.IsSelected`, to
   keep it consistent with the actual selection source of truth.
+- **Removed the panel's "✕" close button after real-world use** (post
+  merge, same day): it read as "close the window/app", not "clear the
+  selection" — an "✕" is a near-universal window-chrome affordance, and
+  reusing it for something else inside a docked panel was confusing.
+  Re-clicking the selected row (already supported) is now the only way to
+  deselect. Removed `MainViewModel.ClosePanelCommand` entirely rather than
+  leaving dead code.
 
 ## Open items / follow-ups
 
-- None open.
+- None open. See `future-ideas.md` → "Slide-out artist panel" for a
+  follow-up idea captured from the same round of feedback (the panel
+  being permanently visible, rather than appearing on demand, was also
+  raised — deliberately not acted on now, needs its own spec).

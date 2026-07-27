@@ -59,7 +59,8 @@
           lives only in MainViewModel.SelectedArtist (driven by SelectArtistCommand),
           not in the ListBox's built-in single-selection model, so the default
           "selected row stays highlighted blue" visual would drift out of sync with
-          it (e.g. after deselecting via the panel's close button).
+          it — re-clicking a row toggles SelectedArtist off without changing which
+          ListBoxItem the ListBox itself considers selected.
         -->
         <Style x:Key="ArtistRowContainerStyle" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0"/>
@@ -159,18 +160,10 @@
 
         <Border Grid.Row="0" Grid.RowSpan="4" Grid.Column="1"
                 Background="#F2F2F2" BorderBrush="#DDDDDD" BorderThickness="1" Padding="8">
-            <DockPanel>
-                <Button DockPanel.Dock="Top"
-                        HorizontalAlignment="Right"
-                        Padding="4,0"
-                        Content="&#x2715;"
-                        Command="{Binding ClosePanelCommand}"
-                        Visibility="{Binding SelectedArtist.Name, Converter={StaticResource NullToVisibilityConverter}}"/>
-                <TextBlock Text="{Binding SelectedArtist.Name}"
-                           FontWeight="Bold"
-                           TextWrapping="Wrap"
-                           VerticalAlignment="Top"/>
-            </DockPanel>
+            <TextBlock Text="{Binding SelectedArtist.Name}"
+                       FontWeight="Bold"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Top"/>
         </Border>
     </Grid>
 </Window>

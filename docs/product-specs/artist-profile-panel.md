@@ -26,8 +26,10 @@ specced later, without a redesign each time.
   query, so the panel needs its own fetch — building that path now avoids
   reworking the selection flow later.
 - Clicking the currently-selected row again deselects it (clears the
-  panel). A "✕" button inside the panel does the same thing. Both are
-  equivalent, redundant affordances for the same action.
+  panel). There's no separate close button in the panel itself — an "✕"
+  there read as "close the window/app" rather than "clear the selection",
+  which was confusing; re-clicking the row is the one, unambiguous way to
+  deselect.
 - Selecting a different row while one is already selected simply replaces
   the panel's content — no need to deselect first.
 

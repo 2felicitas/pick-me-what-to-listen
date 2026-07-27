@@ -38,6 +38,18 @@ concern (no `Domain`/`Application` impact expected) once specced; the part
 worth preserving deliberately is the "spin, slow down, land in the center"
 feel, not the exact row count or sizing.
 
+## Slide-out artist panel
+
+The artist profile panel (see `artist-profile-panel.md`) is currently a
+permanently visible column on the right side of the main window, empty
+when nothing is selected. Make it slide out/in on selection instead —
+hidden (or collapsed to nothing) when no artist is selected, appearing
+(sliding in from the right, presumably with a `Storyboard`/
+`ThicknessAnimation` or similar) when a row is clicked, and sliding back
+out on deselect. Purely a `PickMeWhatToListen.Wpf` concern; likely wants
+to happen alongside or after the "Visual design pass" below rather than
+as an isolated animation tweak.
+
 ## Visual design pass
 
 The UI has had no deliberate design work yet — current windows are

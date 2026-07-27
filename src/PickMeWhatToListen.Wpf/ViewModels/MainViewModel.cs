@@ -111,9 +111,6 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
         SelectedArtist = artist is null ? null : new ArtistProfileViewModel(artist);
     }
 
-    [RelayCommand]
-    private void ClosePanel() => SelectedArtist = null;
-
     private async Task ReloadArtistsAsync()
     {
         var artists = await catalogService.GetAllArtistsAsync();

@@ -38,10 +38,17 @@ changes.
 - [x] Spacing: root `Grid` margin `24` → `16`, drop the inter-column
       gap, list panel `BorderThickness="1,1,0,1"`, `SurfaceCardStyle`
       padding `20` → `12`, minor button/textbox padding trims.
-- [ ] Responsive column split: both `ColumnDefinition`s star-sized at
+- [x] Responsive column split: both `ColumnDefinition`s star-sized at
       today's pixel ratio, with `MinWidth` safety values.
 - [ ] `ResponsiveFontSizeConverter` + bindings on `Window.FontSize`,
       `TitleTextStyle`, `CaptionTextStyle`.
+- [x] `ResponsiveScaleConverter` + bindings on primary control chrome
+      (add-artist `TextBox`/`Button`, pick-random `Button` heights/widths).
+      Typography deliberately unchanged for now — evaluate control-only
+      scaling before deciding how much text should track the window.
+- [x] Primary-button readability pass: `FontSize` on `PrimaryButtonStyle`
+      (base 13.5, scales with window), taller/wider chrome bases (36/80
+      toolbar row, 32 pick-random), `Padding="12,0"` on primary buttons.
 - [ ] Details panel transition: `Tag`-bound `Binding.TargetUpdated`
       trigger + fade/slide `Storyboard` on the details `Grid`.
 - [ ] `dotnet build` + `dotnet test` + `dotnet format
@@ -135,6 +142,16 @@ changes.
     Deliberately explicit local `Height`/`Width` rather than a shared
     style change, since the two buttons now have different target sizes
     despite sharing `PrimaryButtonStyle`.
+- 2026-08-01 — Responsive column split revised to **1:3** (list:details)
+  with `MinWidth="160"` / `"480"` (sums to window `MinWidth="640"`).
+- 2026-08-01 — **Control-only responsive sizing (text deferred).** Added
+  `ResponsiveScaleConverter`: linear scale from `Window.ActualWidth` against
+  reference 760px, clamped between the window min floor (~0.84×) and 1.25×
+  so chrome grows with the window but doesn't balloon on ultrawide while
+  font sizes stay fixed. Bound on add-artist `TextBox`/`Button` and
+  pick-random `Button` in `MainWindow.xaml`. Typography (`Window.FontSize`,
+  `TitleTextStyle`, `CaptionTextStyle`) left untouched pending visual review
+  — the 0.5 dampening idea applies to text only if/when we add it.
 - 2026-08-01 — Details panel transition is a known simplification: WPF
   updates the bound content before the animation runs, so there's no
   cheap way to show the *actual* old content fading out without a

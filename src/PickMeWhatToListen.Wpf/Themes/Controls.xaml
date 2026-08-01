@@ -5,6 +5,8 @@
         <ResourceDictionary Source="Brushes.xaml"/>
         <!-- Needed for RowIsSelectedConverter used in ArtistRowButtonStyle below — see Converters.xaml. -->
         <ResourceDictionary Source="Converters.xaml"/>
+        <!-- Needed for AppFontFamily, not currently referenced by a style here but kept alongside the other theme merges for consistency — see Typography.xaml. -->
+        <ResourceDictionary Source="Typography.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!-- Flat, filled button for the primary action of a section ("Добавить", "Выбрать случайного"). -->

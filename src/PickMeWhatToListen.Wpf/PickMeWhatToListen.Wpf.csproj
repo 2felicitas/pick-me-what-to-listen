@@ -5,6 +5,24 @@
     <ProjectReference Include="..\PickMeWhatToListen.Infrastructure\PickMeWhatToListen.Infrastructure.csproj" />
   </ItemGroup>
 
+  <!--
+    PT Root UI variable font (OFL-1.1, see Fonts/LICENSE.txt), embedded as a
+    WPF pack resource so it's available at
+    pack://application:,,,/.../Fonts/#PT Root UI VF without needing to be
+    installed on the machine. Arbitrary files under Fonts/ aren't
+    auto-included as Resource by the WPF SDK the way .xaml is, so both files
+    are listed explicitly.
+
+    Not Figtree: Figtree's Cyrillic support is an unmerged GitHub PR, not
+    part of any released version, so it renders Cyrillic (the bulk of this
+    app's UI text) via a fallback system font instead — see decisions log in
+    docs/exec-plans/active/0006-typography-spacing-and-motion.md.
+  -->
+  <ItemGroup>
+    <Resource Include="Fonts\PT-Root-UI_VF.ttf" />
+    <None Include="Fonts\LICENSE.txt" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" />

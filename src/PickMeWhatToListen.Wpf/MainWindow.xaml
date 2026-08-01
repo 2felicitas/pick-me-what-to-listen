@@ -7,6 +7,7 @@
         Title="Кого послушать?"
         Height="560" Width="760" MinHeight="460" MinWidth="640"
         Background="{StaticResource WindowBackgroundBrush}"
+        FontFamily="{StaticResource AppFontFamily}"
         WindowStartupLocation="CenterScreen"
         Language="ru-RU">
     <!--

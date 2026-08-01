@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+      PT Root UI variable font (OFL-1.1, Fonts/LICENSE.txt), embedded as a
+      pack resource (see PickMeWhatToListen.Wpf.csproj). One file covers the
+      weight axis 300-700 (Light/Regular/Medium/Bold named instances), so
+      both FontWeight="Normal" and "SemiBold" used today resolve against it
+      without needing separate static-weight files. Set once on
+      Window.FontFamily in MainWindow.xaml — FontFamily is inherited, so
+      every descendant control picks it up automatically.
+
+      Not Figtree: Figtree's Cyrillic support is an unmerged GitHub PR, not
+      part of any released version — see .cursor/rules/theming.mdc and
+      docs/exec-plans/active/0006-typography-spacing-and-motion.md for the
+      full story. "PT Root UI VF" below is the font's own internal family
+      name (from its name table), not derived from the file name.
+    -->
+    <FontFamily x:Key="AppFontFamily">pack://application:,,,/PickMeWhatToListen.Wpf;component/Fonts/#PT Root UI VF</FontFamily>
+
+</ResourceDictionary>

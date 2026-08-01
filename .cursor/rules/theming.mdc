@@ -24,9 +24,11 @@ alwaysApply: false
   belongs here — see `ArtistRowButtonStyle`/`ArtistRowContainerStyle` for
   the kind of thing that belongs in `Controls.xaml`, not in
   `MainWindow.xaml`.
-- These four dictionaries are merged in `App.xaml` in the order
-  `Colors.xaml` → `Brushes.xaml` → `Converters.xaml` → `Controls.xaml` —
-  each one only depends on the ones before it.
+- These dictionaries are merged in `App.xaml` in the order `Colors.xaml` →
+  `Brushes.xaml` → `Converters.xaml` → `Controls.xaml` — each one only
+  depends on the ones before it. `Typography.xaml` (the embedded-font
+  `AppFontFamily` resource) is merged into `Controls.xaml` the same way,
+  rather than added as a fifth top-level entry in `App.xaml`.
 - The palette is deliberately **not** a runtime-swappable config (no JSON
   file, no reload-without-restart). The entire point of this structure is
   that changing the app's look end-to-end is a one-file edit to
@@ -61,3 +63,23 @@ alwaysApply: false
   `Controls.xaml` fixes it. Skipping any of these explicit merges throws
   the equivalent error for whatever resource is missing, regardless of
   whether the reference is eager or deferred.
+- **Embedding a font (`AppFontFamily` in `Typography.xaml`) requires
+  matching the pack URI's `#`-suffix to the font's internal family name
+  from its own `name` table (record ID 1/16) — not the `.ttf` file name.**
+  For the currently-embedded `PT-Root-UI_VF.ttf` that name is
+  `PT Root UI VF`, which happens to resemble the file name but isn't
+  guaranteed to for any given font. Check with a quick
+  `fontTools.ttLib.TTFont(...)['name']` dump (`pip install fonttools`) if
+  unsure; don't guess from the file name.
+- **Before wiring in any embedded font, verify its actual glyph coverage
+  for the app's scripts (this app's UI text is entirely Russian) with
+  `font.getBestCmap()` from `fontTools` — don't assume it from a font's
+  marketing page or a variable font's weight-axis resolving correctly**,
+  which says nothing about character coverage. Figtree
+  (`erikdkennedy/figtree`) was tried first and its weight axis worked
+  fine, but its Cyrillic support exists only as an unmerged GitHub PR —
+  no released version (including the one embedded here) actually
+  contains Cyrillic glyphs, so it silently fell back to the OS default
+  font for every Cyrillic character. Replaced with PT Root UI (Paratype,
+  OFL-1.1) — see `docs/exec-plans/active/0006-typography-spacing-and-motion.md`
+  decisions log for the full story.

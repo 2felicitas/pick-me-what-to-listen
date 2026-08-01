@@ -1,6 +1,6 @@
 # 0005-visual-design-pass
 
-Status: Active
+Status: Completed
 Spec: [docs/product-specs/visual-design-pass.md](../../product-specs/visual-design-pass.md)
 
 ## Goal
@@ -96,4 +96,9 @@ unstyled wireframe.
 
 ## Open items / follow-ups
 
-None yet — update as work proceeds.
+- None open for the scope of this plan (list/details layout, warm
+  palette, flat styling). Typography (Figtree, responsive font sizing),
+  tighter border-only spacing, the proportional responsive column split,
+  and the details-panel transition animation are a second increment of
+  the same spec — see
+  [0006-typography-spacing-and-motion.md](../active/0006-typography-spacing-and-motion.md).

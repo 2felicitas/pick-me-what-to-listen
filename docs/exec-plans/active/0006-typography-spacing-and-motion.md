@@ -35,7 +35,7 @@ changes.
       `Controls.xaml`.
 - [x] `MainWindow.xaml` — `Window.FontFamily="{StaticResource
       AppFontFamily}"`.
-- [ ] Spacing: root `Grid` margin `24` → `16`, drop the inter-column
+- [x] Spacing: root `Grid` margin `24` → `16`, drop the inter-column
       gap, list panel `BorderThickness="1,1,0,1"`, `SurfaceCardStyle`
       padding `20` → `12`, minor button/textbox padding trims.
 - [ ] Responsive column split: both `ColumnDefinition`s star-sized at
@@ -87,6 +87,54 @@ changes.
   `font.getBestCmap()` *before* wiring a font in, not after a visual
   check catches the fallback — a variable font's weight axis resolving
   correctly says nothing about its character coverage.
+- 2026-08-01 — Spacing: tightened root `Grid` margin (`24`→`16`),
+  `SurfaceCardStyle` padding (`20`→`12`), `PrimaryButtonStyle` padding
+  (`14,8`→`12,7`), `ThemedTextBoxStyle` padding (`8,6`→`8,5`), and the
+  `12`-value inter-row margins in the list column's add-toolbar/list/
+  button stack (`12`→`8`, matching the smaller margins already used
+  elsewhere in that stack rather than introducing a third spacing value).
+  Border merge: dropped the list panel's `Margin="0,0,20,0"` gap entirely
+  and overrode its `BorderThickness` locally to `1,1,0,1` (no right
+  edge) so it sits directly adjacent to the details panel (unchanged,
+  all four sides) — verified via `xamlmcp` (`props` on both panel
+  `Border`s: list resolves `1,1,0,1`/`Local`, and the screenshot shows a
+  single continuous outer rectangle with one internal divider line, no
+  doubled 2px seam). Left the details-panel-internal margins (picked/
+  created date lines) untouched — out of this pass's explicit scope.
+- 2026-08-01 — **Follow-up iteration on spacing, driven by visual review.**
+  After the initial tightening pass above, went further per direct
+  feedback while looking at the running app:
+  - Root `Grid` margin `16` → `0` (panels now touch the window edge).
+  - `SurfaceCardStyle.Padding` `12` → `0` by default, `PrimaryButtonStyle`/
+    `ThemedTextBoxStyle` padding → `0` — so the list panel's textbox,
+    "Добавить"/"Импорт из файла" toolbar, artist list, and "Выбрать
+    случайного" button are all full-bleed within their panel (no inset
+    from the border on any side).
+  - This over-corrected for the **details panel**, which holds only text
+    (name, dates, empty-state placeholder) and read badly glued to the
+    border, and for **`LinkButtonStyle`** ("Импорт из файла..."), same
+    problem. Fixed by keeping `SurfaceCardStyle.Padding="0"` as the
+    default (right for the list panel's full-bleed controls) but adding
+    a local `Padding="12"` override on the details panel's `Border` in
+    `MainWindow.xaml`, and restoring `LinkButtonStyle.Padding` to `0,4`.
+    **Takeaway**: a "make X full-bleed" request doesn't automatically
+    apply to every sibling that shares the same style — text-only
+    content and interactive full-width controls want different padding,
+    so it's a local override on the specific `Border`, not a universal
+    style-level change.
+  - Zeroing out button/textbox padding also made "Добавить" (52.4×16.4px
+    measured via `xamlmcp`), "Выбрать случайного" (299×14.4px), and the
+    add-artist `TextBox` (238.6×16.4px) look visually flattened. Fixed
+    per explicit sizing request: local `Height="32"` on both the
+    `TextBox` and "Добавить" (matches, since both measured ~16.4px
+    before — keeps them level in the same row) plus `Width="58"` on
+    "Добавить" (~1.1× its prior 52.4px width), and `Height="28"` on
+    "Выбрать случайного" (~2× its prior 14.4px, which was already
+    marginally shorter than "Добавить" despite sharing the same style —
+    likely per-string layout rounding, not worth chasing further).
+    Deliberately explicit local `Height`/`Width` rather than a shared
+    style change, since the two buttons now have different target sizes
+    despite sharing `PrimaryButtonStyle`.
 - 2026-08-01 — Details panel transition is a known simplification: WPF
   updates the bound content before the animation runs, so there's no
   cheap way to show the *actual* old content fading out without a

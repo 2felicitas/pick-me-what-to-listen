@@ -24,13 +24,21 @@
       the result/viewing pane, reflecting whatever is selected, whether by
       a row click or by a random pick.
     -->
-    <Grid Margin="24">
+    <Grid Margin="0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Margin="0,0,20,0" Style="{StaticResource SurfaceCardStyle}">
+        <!--
+          List/details panels sit directly adjacent (no gap) so the pair
+          reads as one continuous bordered block with a single internal
+          divider: the list panel drops its right edge (BorderThickness
+          "1,1,0,1" — no right edge) so it doesn't double up into a 2px
+          seam with the details panel's own left edge (unchanged, all four
+          sides from SurfaceCardStyle).
+        -->
+        <Border Grid.Column="0" BorderThickness="1,1,0,1" Style="{StaticResource SurfaceCardStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -51,6 +59,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
+                                 Height="32"
                                  Style="{StaticResource ThemedTextBoxStyle}"
                                  Text="{Binding NewArtistName, UpdateSourceTrigger=PropertyChanged}">
                             <TextBox.InputBindings>
@@ -58,7 +67,9 @@
                             </TextBox.InputBindings>
                         </TextBox>
                         <Button Grid.Column="1"
-                                Margin="8,0,0,0"
+                                Margin="0,0,0,0"
+                                Height="32"
+                                Width="64"
                                 Content="Добавить"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Command="{Binding AddArtistCommand}"/>
@@ -71,7 +82,7 @@
                 </Grid>
 
                 <TextBlock Grid.Row="1"
-                           Margin="0,12,0,0"
+                           Margin="0,8,0,0"
                            TextWrapping="Wrap"
                            Text="{Binding StatusMessage}"
                            Visibility="{Binding StatusMessage, Converter={StaticResource NullToVisibilityConverter}}">
@@ -83,7 +94,7 @@
                 </TextBlock>
 
                 <ListBox Grid.Row="2"
-                         Margin="0,12,0,0"
+                         Margin="0,8,0,0"
                          Background="Transparent"
                          BorderThickness="0"
                          ItemsSource="{Binding Artists}"
@@ -118,7 +129,8 @@
                 </ListBox>
 
                 <Button Grid.Row="3"
-                        Margin="0,12,0,0"
+                        Margin="0,0,0,0"
+                        Height="28"
                         HorizontalAlignment="Stretch"
                         Content="Выбрать случайного"
                         Style="{StaticResource PrimaryButtonStyle}"
@@ -126,7 +138,14 @@
             </Grid>
         </Border>
 
-        <Border Grid.Column="1" Style="{StaticResource SurfaceCardStyle}">
+        <!--
+          Unlike the list panel, the details panel holds only text (name,
+          dates, placeholder), which reads badly glued to the border — so
+          it keeps a local Padding override, while SurfaceCardStyle itself
+          defaults to 0 for panels (like the list one) that want their
+          content flush with the border.
+        -->
+        <Border Grid.Column="1" Padding="12" Style="{StaticResource SurfaceCardStyle}">
             <Grid>
                 <TextBlock Text="Выберите исполнителя из списка или нажмите «Выбрать случайного»"
                            VerticalAlignment="Top">

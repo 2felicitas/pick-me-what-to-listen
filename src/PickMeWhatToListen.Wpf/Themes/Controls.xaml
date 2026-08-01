@@ -14,7 +14,7 @@
         <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource AccentContrastBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -68,7 +68,7 @@
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
@@ -87,12 +87,22 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
-    <!-- Flat "plate" surface — a border, not a shadow, separates it from the window background. -->
+    <!--
+      Flat "plate" surface — a border, not a shadow, separates it from the
+      window background. BorderThickness is the default (all four sides);
+      the list panel in MainWindow.xaml overrides it locally to drop its
+      right edge so the two list/details panels share a single divider
+      line instead of doubling up into a 2px seam — see the comment there.
+      Padding defaults to 0 so panels whose content is itself full-bleed
+      controls (the list panel's textbox/listbox/buttons) sit flush with
+      the border; the details panel (text-only content) overrides Padding
+      locally instead, since bare text glued to a border reads badly.
+    -->
     <Style x:Key="SurfaceCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="20"/>
+        <Setter Property="Padding" Value="0"/>
     </Style>
 
     <!--

@@ -1,7 +1,7 @@
 # Visual design pass: list/details layout
 
-Status: In progress (see `docs/exec-plans/active/0006-typography-spacing-and-motion.md`,
-continuing the work started in `docs/exec-plans/completed/0005-visual-design-pass.md`)
+Status: **Implemented** (see `docs/exec-plans/completed/0005-visual-design-pass.md`
+and `docs/exec-plans/completed/0006-typography-spacing-and-motion.md`)
 
 ## Goal
 

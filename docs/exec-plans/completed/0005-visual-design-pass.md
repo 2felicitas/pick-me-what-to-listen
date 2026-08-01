@@ -97,8 +97,7 @@ unstyled wireframe.
 ## Open items / follow-ups
 
 - None open for the scope of this plan (list/details layout, warm
-  palette, flat styling). Typography (Figtree, responsive font sizing),
-  tighter border-only spacing, the proportional responsive column split,
-  and the details-panel transition animation are a second increment of
-  the same spec — see
-  [0006-typography-spacing-and-motion.md](../active/0006-typography-spacing-and-motion.md).
+  palette, flat styling). Typography, tighter border-only spacing, the
+  proportional responsive column split, and the details-panel transition
+  animation were completed in
+  [0006-typography-spacing-and-motion.md](0006-typography-spacing-and-motion.md).

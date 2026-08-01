@@ -81,5 +81,5 @@ alwaysApply: false
   no released version (including the one embedded here) actually
   contains Cyrillic glyphs, so it silently fell back to the OS default
   font for every Cyrillic character. Replaced with PT Root UI (Paratype,
-  OFL-1.1) — see `docs/exec-plans/active/0006-typography-spacing-and-motion.md`
+  OFL-1.1) — see `docs/exec-plans/completed/0006-typography-spacing-and-motion.md`
   decisions log for the full story.

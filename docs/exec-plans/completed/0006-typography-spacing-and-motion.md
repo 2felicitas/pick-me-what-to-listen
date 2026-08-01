@@ -1,6 +1,6 @@
 # 0006-typography-spacing-and-motion
 
-Status: Active
+Status: Completed
 Spec: [docs/product-specs/visual-design-pass.md](../../product-specs/visual-design-pass.md)
 
 ## Goal
@@ -19,13 +19,14 @@ changes.
   `PickMeWhatToListen.Wpf.csproj` resource inclusion, new
   `Themes/Typography.xaml`, `MainWindow.xaml` (`Window.FontFamily`,
   margin/padding tightening, border-only column separation, proportional
-  `ColumnDefinition`s, details-panel transition `Storyboard`), a new
-  `ResponsiveFontSizeConverter` in `Converters/` registered in
+  `ColumnDefinition`s, details-panel transition `Storyboard`),
+  `ResponsiveScaleConverter` in `Converters/` registered in
   `Themes/Converters.xaml`, `Themes/Controls.xaml` (`SurfaceCardStyle`
-  padding, `PrimaryButtonStyle`/`ThemedTextBoxStyle` padding, responsive
-  `FontSize` bindings on `TitleTextStyle`/`CaptionTextStyle`).
+  padding, `PrimaryButtonStyle` responsive chrome + button `FontSize`).
 - Out (see `future-ideas.md`): the slot-machine pick-random animation,
-  runtime theme switching, `GridSplitter`/resizable panes.
+  runtime theme switching, `GridSplitter`/resizable panes, body
+  typography scaling (`TitleTextStyle`/`CaptionTextStyle`/list rows stay
+  fixed — deliberate after visual review).
 
 ## Plan
 
@@ -38,27 +39,25 @@ changes.
 - [x] Spacing: root `Grid` margin `24` → `16`, drop the inter-column
       gap, list panel `BorderThickness="1,1,0,1"`, `SurfaceCardStyle`
       padding `20` → `12`, minor button/textbox padding trims.
-- [x] Responsive column split: both `ColumnDefinition`s star-sized at
-      today's pixel ratio, with `MinWidth` safety values.
-- [ ] `ResponsiveFontSizeConverter` + bindings on `Window.FontSize`,
-      `TitleTextStyle`, `CaptionTextStyle`.
+- [x] Responsive column split: **1:3** star-sized columns with
+      `MinWidth="160"` / `"480"`.
+- [x] ~~`ResponsiveFontSizeConverter` + bindings on `Window.FontSize`,
+      `TitleTextStyle`, `CaptionTextStyle`.~~ Out of scope — body
+      typography stays fixed; only primary-button labels scale.
 - [x] `ResponsiveScaleConverter` + bindings on primary control chrome
       (add-artist `TextBox`/`Button`, pick-random `Button` heights/widths).
-      Typography deliberately unchanged for now — evaluate control-only
-      scaling before deciding how much text should track the window.
 - [x] Primary-button readability pass: `FontSize` on `PrimaryButtonStyle`
-      (base 13.5, scales with window), taller/wider chrome bases (36/80
+      (base 15, scales with window), taller/wider chrome bases (36/96
       toolbar row, 32 pick-random), `Padding="12,0"` on primary buttons.
 - [x] Details panel transition: `Tag`-bound `Binding.TargetUpdated`
       trigger + fade/slide `Storyboard` on the details `Grid`.
       Requires `NotifyOnTargetUpdated=True` on the `Tag` binding — without
       it the event never fires.
-- [ ] `dotnet build` + `dotnet test` + `dotnet format
+- [x] `dotnet build` + `dotnet test` + `dotnet format
       --verify-no-changes` clean; visual check via `dotnet run
-      --project src/PickMeWhatToListen.Wpf` + `xamlmcp` (screenshots at
-      a couple of window sizes, `action`-driven selection change to
-      confirm the transition fires).
-- [ ] Docs: this plan's decisions log, move to `completed/` once merged.
+      --project src/PickMeWhatToListen.Wpf` + manual review + `xamlmcp`
+      (window resize, selection change, transition confirmed).
+- [x] Docs: this plan's decisions log, moved to `completed/`.
 
 ## Decisions & deviations log
 
@@ -170,4 +169,6 @@ changes.
 
 ## Open items / follow-ups
 
-None yet — update as work proceeds.
+- None open for the scope of this plan. Body typography scaling
+  (`TitleTextStyle`, list rows, details panel dates) was explicitly
+  deferred after review — reopen only via a new spec if needed.

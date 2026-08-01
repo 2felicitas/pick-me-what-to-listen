@@ -5,7 +5,8 @@
 - [standalone-exe.md](standalone-exe.md) — publish a self-contained, single-file `.exe`. **Implemented.**
 - [artist-profile-panel.md](artist-profile-panel.md) — side panel showing the selected artist's details. **Implemented.**
 - [visual-design-pass.md](visual-design-pass.md) — list/details layout, warm
-  color palette, flat UI styling. **In progress.**
+  color palette, flat UI styling, PT Root UI, responsive chrome, details-panel
+  transition. **Implemented.**
 - [future-ideas.md](future-ideas.md) — backlog headings only, not yet
   specced: discography, release tracking, tagging, pick animation.
 

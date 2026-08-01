@@ -12,7 +12,7 @@
 
       Not Figtree: Figtree's Cyrillic support is an unmerged GitHub PR, not
       part of any released version — see .cursor/rules/theming.mdc and
-      docs/exec-plans/active/0006-typography-spacing-and-motion.md for the
+      docs/exec-plans/completed/0006-typography-spacing-and-motion.md for the
       full story. "PT Root UI VF" below is the font's own internal family
       name (from its name table), not derived from the file name.
     -->

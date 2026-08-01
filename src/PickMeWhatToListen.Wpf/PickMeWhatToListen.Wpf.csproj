@@ -16,7 +16,7 @@
     Not Figtree: Figtree's Cyrillic support is an unmerged GitHub PR, not
     part of any released version, so it renders Cyrillic (the bulk of this
     app's UI text) via a fallback system font instead — see decisions log in
-    docs/exec-plans/active/0006-typography-spacing-and-motion.md.
+    docs/exec-plans/completed/0006-typography-spacing-and-motion.md.
   -->
   <ItemGroup>
     <Resource Include="Fonts\PT-Root-UI_VF.ttf" />

@@ -49,8 +49,10 @@ changes.
 - [x] Primary-button readability pass: `FontSize` on `PrimaryButtonStyle`
       (base 13.5, scales with window), taller/wider chrome bases (36/80
       toolbar row, 32 pick-random), `Padding="12,0"` on primary buttons.
-- [ ] Details panel transition: `Tag`-bound `Binding.TargetUpdated`
+- [x] Details panel transition: `Tag`-bound `Binding.TargetUpdated`
       trigger + fade/slide `Storyboard` on the details `Grid`.
+      Requires `NotifyOnTargetUpdated=True` on the `Tag` binding — without
+      it the event never fires.
 - [ ] `dotnet build` + `dotnet test` + `dotnet format
       --verify-no-changes` clean; visual check via `dotnet run
       --project src/PickMeWhatToListen.Wpf` + `xamlmcp` (screenshots at
@@ -152,6 +154,12 @@ changes.
   pick-random `Button` in `MainWindow.xaml`. Typography (`Window.FontSize`,
   `TitleTextStyle`, `CaptionTextStyle`) left untouched pending visual review
   — the 0.5 dampening idea applies to text only if/when we add it.
+- 2026-08-02 — Details panel transition wired in `MainWindow.xaml`:
+  `Tag="{Binding SelectedArtist, NotifyOnTargetUpdated=True}"` on the content
+  `Grid`, `Binding.TargetUpdated` → 220ms fade-in + 10px slide-up
+  (`QuadraticEase` out, `HandoffBehavior="SnapshotAndReplace"`). First attempt
+  omitted `NotifyOnTargetUpdated` — storyboard never started; confirmed working
+  after the fix via manual review + xamlmcp selection change.
 - 2026-08-01 — Details panel transition is a known simplification: WPF
   updates the bound content before the animation runs, so there's no
   cheap way to show the *actual* old content fading out without a

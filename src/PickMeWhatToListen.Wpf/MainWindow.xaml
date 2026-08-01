@@ -150,7 +150,42 @@
           content flush with the border.
         -->
         <Border Grid.Column="1" Padding="12" Style="{StaticResource SurfaceCardStyle}">
-            <Grid>
+            <!--
+              NotifyOnTargetUpdated=True is required — without it Binding.TargetUpdated
+              never fires and the storyboard below never starts.
+            -->
+            <Grid x:Name="DetailsContentPanel"
+                  RenderTransformOrigin="0,0">
+                <Grid.Tag>
+                    <Binding NotifyOnTargetUpdated="True" Path="SelectedArtist"/>
+                </Grid.Tag>
+                <Grid.RenderTransform>
+                    <TranslateTransform Y="0"/>
+                </Grid.RenderTransform>
+                <Grid.Triggers>
+                    <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                        <BeginStoryboard HandoffBehavior="SnapshotAndReplace">
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 From="0"
+                                                 To="1"
+                                                 Duration="0:0:0.22">
+                                    <DoubleAnimation.EasingFunction>
+                                        <QuadraticEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                 From="10"
+                                                 To="0"
+                                                 Duration="0:0:0.22">
+                                    <DoubleAnimation.EasingFunction>
+                                        <QuadraticEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Grid.Triggers>
                 <TextBlock Text="Выберите исполнителя из списка или нажмите «Выбрать случайного»"
                            VerticalAlignment="Top">
                     <TextBlock.Style>

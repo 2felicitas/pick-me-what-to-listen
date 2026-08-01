@@ -15,9 +15,6 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
     private string _newArtistName = string.Empty;
 
     [ObservableProperty]
-    private string? _lastPickedArtistName;
-
-    [ObservableProperty]
     private string? _statusMessage;
 
     [ObservableProperty]
@@ -88,12 +85,13 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
         var result = await catalogService.PickRandomAsync();
         if (!result.Succeeded)
         {
-            LastPickedArtistName = null;
             StatusMessage = "Все исполнители уже отмечены как прослушанные — добавьте новых.";
             return;
         }
 
-        LastPickedArtistName = result.Artist!.Name;
+        // The result surfaces in the details panel (like clicking its row would),
+        // not a separate banner — see docs/product-specs/visual-design-pass.md.
+        SelectedArtist = new ArtistProfileViewModel(result.Artist!);
         StatusMessage = null;
         await ReloadArtistsAsync();
     }

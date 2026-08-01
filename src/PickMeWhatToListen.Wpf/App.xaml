@@ -1,12 +1,22 @@
 ﻿<Application x:Class="PickMeWhatToListen.Wpf.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:PickMeWhatToListen.Wpf"
-             xmlns:converters="clr-namespace:PickMeWhatToListen.Wpf.Converters">
+             xmlns:local="clr-namespace:PickMeWhatToListen.Wpf">
     <!-- No StartupUri: MainWindow is resolved from the DI container and shown from OnStartup. -->
+    <!--
+      Order matters: each dictionary depends on the one(s) before it (see
+      .cursor/rules/theming.mdc). Converters/Controls also each re-merge
+      their own dependencies internally, so a dictionary works correctly
+      even when loaded standalone, not just when combined here.
+    -->
     <Application.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:NullOrEmptyToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        <converters:RowIsSelectedConverter x:Key="RowIsSelectedConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Colors.xaml"/>
+                <ResourceDictionary Source="Themes/Brushes.xaml"/>
+                <ResourceDictionary Source="Themes/Converters.xaml"/>
+                <ResourceDictionary Source="Themes/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

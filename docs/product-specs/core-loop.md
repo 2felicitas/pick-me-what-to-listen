@@ -21,8 +21,10 @@ suggestion from the ones not yet listened to.
 - `IsPicked` is **not** a "currently selected" flag — it never gets unset by
   picking a different artist. It's a durable "have I already picked/listened
   to this one" marker per artist. The UI distinguishes picked vs. unpicked
-  rows in the list (checkmark + strikethrough) and separately shows a
-  "just picked" result banner for the latest draw.
+  rows in the list (checkmark + strikethrough). The latest draw is surfaced
+  by selecting it into the artist details panel (see
+  `artist-profile-panel.md` and `visual-design-pass.md`) rather than a
+  separate result banner.
 
 ## Non-goals (for this spec)
 

@@ -1,0 +1,63 @@
+---
+description: Color/theme resource conventions for the Wpf project
+globs: src/PickMeWhatToListen.Wpf/**
+alwaysApply: false
+---
+
+# Theming conventions
+
+- All raw colors live in `Themes/Colors.xaml` as `Color` resources
+  (e.g. `WarmAccentColor`). Nothing else defines a `Color` resource.
+- All semantic brushes live in `Themes/Brushes.xaml` as `SolidColorBrush`
+  resources (e.g. `AccentBrush`, `TextPrimaryBrush`), each referencing a
+  color from `Colors.xaml` via `StaticResource`. Every style, every
+  `MainWindow.xaml` (or any future view), and any code-behind must use
+  one of these semantic brushes — never a raw hex literal, never a WPF
+  named/system color (`OrangeRed`, `Green`, `Gray`, etc.), never a new
+  ad-hoc `Color`/`SolidColorBrush` inline in a `Window.Resources` or
+  `Style`.
+- Converters live in `Themes/Converters.xaml` (not declared inline in
+  `App.xaml`) — see the gotcha below for why.
+- Shared flat control styles (buttons, text roles, card surfaces, list row
+  templates) live in `Themes/Controls.xaml` and reference brushes/converters
+  the same way. Don't duplicate a style inline in a window/view when it
+  belongs here — see `ArtistRowButtonStyle`/`ArtistRowContainerStyle` for
+  the kind of thing that belongs in `Controls.xaml`, not in
+  `MainWindow.xaml`.
+- These four dictionaries are merged in `App.xaml` in the order
+  `Colors.xaml` → `Brushes.xaml` → `Converters.xaml` → `Controls.xaml` —
+  each one only depends on the ones before it.
+- The palette is deliberately **not** a runtime-swappable config (no JSON
+  file, no reload-without-restart). The entire point of this structure is
+  that changing the app's look end-to-end is a one-file edit to
+  `Colors.xaml` followed by a rebuild/relaunch — see
+  `docs/product-specs/visual-design-pass.md` for the rationale. Don't
+  build a runtime theme-switching mechanism without a spec for it first.
+- `StaticResource`, not `DynamicResource`, is enough for all of the above
+  — nothing swaps dictionaries at runtime, so there's no need to pay
+  `DynamicResource`'s lookup/perf cost.
+- **Each theme dictionary must explicitly merge every dictionary it
+  depends on** (`Brushes.xaml` merges `Colors.xaml`; `Controls.xaml`
+  merges `Brushes.xaml` and `Converters.xaml`), even though `App.xaml`
+  also merges all of them at the top. This isn't just about top-level
+  `ResourceDictionary` entries (a `SolidColorBrush` with a
+  `Color="{StaticResource ...}"`, resolved *eagerly* against only its own
+  dictionary's `MergedDictionaries`) — a `StaticResource` referenced
+  *inside* a `Style`/`ControlTemplate`'s deferred content (e.g. a
+  `Setter.Value` in `Style.Triggers`) defined in a separate file loaded via
+  `<ResourceDictionary Source="...">` **also** only resolves against that
+  file's own merge chain, not the wider `Application.Resources` tree it
+  ends up part of — it does *not* walk further out the way a plain
+  `{StaticResource}`/`FindResource` call from an element already in the
+  visual tree would. Concretely: `ArtistRowButtonStyle` (in
+  `Controls.xaml`) uses `RowIsSelectedConverter` inside a `DataTrigger`
+  inside `Style.Triggers`; declaring that converter only in `App.xaml`'s
+  own `Application.Resources` (outside `Controls.xaml`'s reachable merge
+  tree) throws `System.Exception: Не удается найти ресурс с именем
+  "RowIsSelectedConverter"` wrapped in a `XamlParseException`, the first
+  time the `ListBox` measures an item — not at build time, not even at
+  `App` startup, only once that specific template is actually applied.
+  Moving the converter into `Themes/Converters.xaml` and merging it into
+  `Controls.xaml` fixes it. Skipping any of these explicit merges throws
+  the equivalent error for whatever resource is missing, regardless of
+  whether the reference is eager or deferred.

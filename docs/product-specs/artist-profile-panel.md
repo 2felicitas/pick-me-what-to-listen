@@ -1,6 +1,9 @@
 # Artist profile panel
 
-Status: Implemented (see `docs/exec-plans/completed/0004-artist-profile-panel.md`)
+Status: Implemented (see `docs/exec-plans/completed/0004-artist-profile-panel.md`).
+Content and empty-state behavior were revised by
+`docs/product-specs/visual-design-pass.md` — see that spec for what
+changed and why.
 
 ## Goal
 
@@ -12,10 +15,12 @@ specced later, without a redesign each time.
 ## Behavior
 
 - The panel is a permanently visible column on the right side of the main
-  window — a plain bordered "plate" — not something that appears/disappears
-  or resizes the window on selection. When nothing is selected it's just
-  empty (no placeholder text); visual styling (background/border color) is
-  deferred to the "Visual design pass" future idea.
+  window — not something that appears/disappears or resizes the window on
+  selection (see `future-ideas.md` → "Slide-out artist panel" for a future
+  revisit of that). When nothing is selected it shows a short placeholder
+  message rather than being visually empty — see `visual-design-pass.md`
+  for the exact copy and rationale (this supersedes the original "no
+  placeholder text" call, made back when the panel was unstyled).
 - Clicking an artist row selects it and loads its details via a dedicated
   single-artist read path (`ArtistCatalogService.GetArtistByIdAsync`,
   backed by the already-existing but previously-unused
@@ -35,13 +40,15 @@ specced later, without a redesign each time.
 
 ## Non-goals (for this spec)
 
-- Any field beyond the artist's name (no `CreatedAtUtc`/`IsPicked`/
-  `PickedAtUtc` in the panel yet, even though `Artist` already carries
-  them) — deferred until discography/tags actually land, per the product
-  decision to keep this pass minimal.
 - Editing artist data from the panel.
-- Visual design (colors, spacing, "secondary" panel styling) — see
-  `future-ideas.md` → "Visual design pass".
+- Anything discography/tag-shaped — still waits for its own spec.
+
+`CreatedAtUtc`/`IsPicked`/`PickedAtUtc` **are** now shown in the panel —
+see `visual-design-pass.md`. The original "name only" scoping call here
+was deliberate for the minimal first version, not permanent; it was
+revisited once the panel started doubling as the pick-random result
+surface, where showing only a name made a fresh pick indistinguishable
+from browsing an already-picked artist.
 
 ## Domain model
 

@@ -5,165 +5,171 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Кого послушать?"
-        Height="520" Width="600" MinHeight="420" MinWidth="520"
-        WindowStartupLocation="CenterScreen">
-    <Window.Resources>
-        <!--
-          Flattens a Button so a whole artist row is clickable (full width, not just
-          the text) without looking like a button. The Border wrapping ContentPresenter
-          is required, not decorative: a bare ContentPresenter has no fill of its own,
-          so without it only the StackPanel's actual TextBlocks (not the empty space
-          around them) are hit-test visible, no matter how much the presenter itself
-          stretches. Background="{TemplateBinding Background}" on that Border is what
-          makes the *whole* row clickable — Transparent still hit-tests, unlike null.
-        -->
-        <Style x:Key="ArtistRowButtonStyle" TargetType="Button">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Stretch"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#EAEAEA"/>
-                </Trigger>
-                <!--
-                  Row highlight is driven by MainViewModel.SelectedArtist (compared via
-                  RowIsSelectedConverter), not ListBoxItem.IsSelected — see
-                  ArtistRowContainerStyle above for why that state is intentionally unused.
-                  Listed after the hover trigger so selection wins if both apply.
-                -->
-                <DataTrigger Value="True">
-                    <DataTrigger.Binding>
-                        <MultiBinding Converter="{StaticResource RowIsSelectedConverter}">
-                            <Binding Path="Id"/>
-                            <Binding Path="DataContext.SelectedArtist.Id" RelativeSource="{RelativeSource AncestorType=ListBox}"/>
-                        </MultiBinding>
-                    </DataTrigger.Binding>
-                    <Setter Property="Background" Value="#CFE3FA"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <!--
-          Strips ListBoxItem's own selection/hover chrome entirely: selection state
-          lives only in MainViewModel.SelectedArtist (driven by SelectArtistCommand),
-          not in the ListBox's built-in single-selection model, so the default
-          "selected row stays highlighted blue" visual would drift out of sync with
-          it — re-clicking a row toggles SelectedArtist off without changing which
-          ListBoxItem the ListBox itself considers selected.
-        -->
-        <Style x:Key="ArtistRowContainerStyle" TargetType="ListBoxItem">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <ContentPresenter HorizontalAlignment="Stretch"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-    <Grid Margin="16">
+        Height="560" Width="760" MinHeight="460" MinWidth="640"
+        Background="{StaticResource WindowBackgroundBrush}"
+        WindowStartupLocation="CenterScreen"
+        Language="ru-RU">
+    <!--
+      Language="ru-RU" (not the WPF default "en-US") so date StringFormat
+      bindings in the details panel below render Russian month names —
+      the whole rest of the UI is Russian text, an English date would be
+      an inconsistency, not a locale choice.
+    -->
+    <!--
+      List/details layout (see docs/product-specs/visual-design-pass.md):
+      the list column (left) is a self-contained, "bookended" management
+      block — add toolbar on top, scrollable list in the middle, the main
+      "pick random" action at the bottom. The details column (right) is
+      the result/viewing pane, reflecting whatever is selected, whether by
+      a row click or by a random pick.
+    -->
+    <Grid Margin="24">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="180"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
-            <Button DockPanel.Dock="Right"
-                    Content="Импорт из файла..."
-                    Margin="8,0,0,0"
-                    Padding="12,4"
-                    Command="{Binding ImportFromFileCommand}"/>
-            <Button DockPanel.Dock="Right"
-                    Content="Добавить"
-                    Margin="8,0,0,0"
-                    Padding="12,4"
-                    Command="{Binding AddArtistCommand}"/>
-            <TextBox VerticalContentAlignment="Center"
-                     Padding="4"
-                     Text="{Binding NewArtistName, UpdateSourceTrigger=PropertyChanged}">
-                <TextBox.InputBindings>
-                    <KeyBinding Key="Return" Command="{Binding AddArtistCommand}"/>
-                </TextBox.InputBindings>
-            </TextBox>
-        </DockPanel>
+        <Border Grid.Column="0" Margin="0,0,20,0" Style="{StaticResource SurfaceCardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <ListBox Grid.Row="1" Grid.Column="0" Margin="0,0,12,0"
-                 ItemsSource="{Binding Artists}"
-                 BorderThickness="1"
-                 HorizontalContentAlignment="Stretch"
-                 ItemContainerStyle="{StaticResource ArtistRowContainerStyle}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Button Style="{StaticResource ArtistRowButtonStyle}"
-                            Command="{Binding DataContext.SelectArtistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                            CommandParameter="{Binding Id}">
-                        <StackPanel Orientation="Horizontal" Margin="2">
-                            <TextBlock Width="20"
-                                       Text="&#x2714;"
-                                       Foreground="Green"
-                                       Visibility="{Binding IsPicked, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <TextBlock Text="{Binding Name}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsPicked}" Value="True">
-                                                <Setter Property="Foreground" Value="Gray"/>
-                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Button>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                <!-- Add-artist toolbar: primary "Добавить" on the input row, import demoted to a link underneath. -->
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Style="{StaticResource ThemedTextBoxStyle}"
+                                 Text="{Binding NewArtistName, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Return" Command="{Binding AddArtistCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Grid.Column="1"
+                                Margin="8,0,0,0"
+                                Content="Добавить"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding AddArtistCommand}"/>
+                    </Grid>
+                    <Button Grid.Row="1"
+                            Margin="0,8,0,0"
+                            Content="Импорт из файла..."
+                            Style="{StaticResource LinkButtonStyle}"
+                            Command="{Binding ImportFromFileCommand}"/>
+                </Grid>
 
-        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,12,12,0">
-            <TextBlock HorizontalAlignment="Center"
-                       FontSize="16"
-                       FontWeight="Bold"
-                       Text="{Binding LastPickedArtistName, StringFormat='Сегодня слушаем: {0}'}"
-                       Visibility="{Binding LastPickedArtistName, Converter={StaticResource NullToVisibilityConverter}}"/>
-            <TextBlock HorizontalAlignment="Center"
-                       Foreground="OrangeRed"
-                       TextWrapping="Wrap"
-                       Text="{Binding StatusMessage}"
-                       Visibility="{Binding StatusMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
-        </StackPanel>
+                <TextBlock Grid.Row="1"
+                           Margin="0,12,0,0"
+                           TextWrapping="Wrap"
+                           Text="{Binding StatusMessage}"
+                           Visibility="{Binding StatusMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
-        <Button Grid.Row="3" Grid.Column="0"
-                Margin="0,12,12,0"
-                Padding="12,8"
-                Content="Выбрать случайного"
-                Command="{Binding PickRandomCommand}"/>
+                <ListBox Grid.Row="2"
+                         Margin="0,12,0,0"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ItemsSource="{Binding Artists}"
+                         HorizontalContentAlignment="Stretch"
+                         ItemContainerStyle="{StaticResource ArtistRowContainerStyle}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource ArtistRowButtonStyle}"
+                                    Command="{Binding DataContext.SelectArtistCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                    CommandParameter="{Binding Id}">
+                                <StackPanel Orientation="Horizontal" Margin="8,6">
+                                    <TextBlock Width="20"
+                                               Text="&#x2714;"
+                                               Foreground="{StaticResource SuccessBrush}"
+                                               Visibility="{Binding IsPicked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsPicked}" Value="True">
+                                                        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
 
-        <Border Grid.Row="0" Grid.RowSpan="4" Grid.Column="1"
-                Background="#F2F2F2" BorderBrush="#DDDDDD" BorderThickness="1" Padding="8">
-            <TextBlock Text="{Binding SelectedArtist.Name}"
-                       FontWeight="Bold"
-                       TextWrapping="Wrap"
-                       VerticalAlignment="Top"/>
+                <Button Grid.Row="3"
+                        Margin="0,12,0,0"
+                        HorizontalAlignment="Stretch"
+                        Content="Выбрать случайного"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding PickRandomCommand}"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="1" Style="{StaticResource SurfaceCardStyle}">
+            <Grid>
+                <TextBlock Text="Выберите исполнителя из списка или нажмите «Выбрать случайного»"
+                           VerticalAlignment="Top">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedArtist}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <StackPanel VerticalAlignment="Top">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedArtist}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <TextBlock Text="{Binding SelectedArtist.Name}" Style="{StaticResource TitleTextStyle}"/>
+
+                    <TextBlock Margin="0,12,0,0"
+                               Text="{Binding SelectedArtist.PickedAtUtc, StringFormat='Отмечен ✔ · {0:d MMMM yyyy}'}"
+                               Visibility="{Binding SelectedArtist.IsPicked, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <TextBlock Margin="0,4,0,0"
+                               Style="{StaticResource CaptionTextStyle}"
+                               Text="{Binding SelectedArtist.CreatedAtUtc, StringFormat='В списке с {0:d MMMM yyyy}'}"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Window>

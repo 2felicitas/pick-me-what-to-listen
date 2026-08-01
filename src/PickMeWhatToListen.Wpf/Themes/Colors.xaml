@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+      Warm terracotta/cream palette v1 (see docs/product-specs/visual-design-pass.md).
+      This file is the single place to edit to change the app's entire look —
+      nothing outside Themes/ should define a raw Color. See
+      .cursor/rules/theming.mdc for the full convention.
+    -->
+
+    <Color x:Key="WindowBackgroundColor">#FBF3EA</Color>
+    <Color x:Key="SurfaceColor">#FFFFFF</Color>
+    <Color x:Key="BorderColor">#E8DCCC</Color>
+
+    <Color x:Key="TextPrimaryColor">#3B2A20</Color>
+    <Color x:Key="TextSecondaryColor">#8A7566</Color>
+
+    <Color x:Key="AccentColor">#D97A3F</Color>
+    <Color x:Key="AccentHoverColor">#C4692F</Color>
+    <Color x:Key="AccentPressedColor">#AD5A26</Color>
+    <Color x:Key="AccentContrastColor">#FFFFFF</Color>
+    <Color x:Key="AccentSoftColor">#F3DCC4</Color>
+
+    <Color x:Key="RowHoverColor">#F3E9DD</Color>
+
+    <Color x:Key="SuccessColor">#7C8A4C</Color>
+    <Color x:Key="ErrorColor">#B3462B</Color>
+
+</ResourceDictionary>

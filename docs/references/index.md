@@ -9,3 +9,4 @@ repeat lookup. See `.cursor/rules/docs-and-planning.mdc`.
 - [efcore-sqlite-datetimeoffset.md](efcore-sqlite-datetimeoffset.md)
 - [efcore-dbcontextfactory-desktop.md](efcore-dbcontextfactory-desktop.md)
 - [netarchtest.md](netarchtest.md)
+- [xamlmcp-wpf.md](xamlmcp-wpf.md)

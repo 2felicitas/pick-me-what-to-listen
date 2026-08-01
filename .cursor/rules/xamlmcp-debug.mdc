@@ -1,0 +1,23 @@
+---
+description: Using XamlMcp to debug the running WPF app's visual tree
+globs: src/PickMeWhatToListen.Wpf/**
+alwaysApply: false
+---
+
+# Debugging the UI with XamlMcp
+
+The `xamlmcp` MCP server (registered in `.cursor/mcp.json`) can attach to a
+*running, Debug-build* instance of `PickMeWhatToListen.Wpf` and inspect/drive
+its visual tree — prefer this over asking the user to describe the screen or
+guessing at layout from XAML alone when debugging a UI issue.
+
+- Full details, gotchas, and the exact attach wiring:
+  [docs/references/xamlmcp-wpf.md](../../docs/references/xamlmcp-wpf.md).
+- Quick loop: `dotnet run --project src/PickMeWhatToListen.Wpf` (Debug), then
+  `list-apps` → `attach(instanceId)` → `tree`/`search`/`screenshot`/`input`.
+- It only attaches in Debug builds and only while the process is alive —
+  stop the running instance before rebuilding (locked `.exe`), and
+  relaunch after any code change to pick it up again (no hot-reload of the
+  agent itself).
+- Node ids from `tree`/`search` are only valid for the `snapshotId` they
+  came with; re-query after any mutating call.

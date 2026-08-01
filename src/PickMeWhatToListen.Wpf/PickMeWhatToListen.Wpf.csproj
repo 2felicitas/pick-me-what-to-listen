@@ -10,6 +10,16 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
   </ItemGroup>
 
+  <!--
+    Debug-only diagnostic agent: lets an AI/dev tool inspect the running
+    visual tree over XamlMcp. Scoped to the Debug configuration (App.xaml.cs
+    guards the corresponding using/AttachXamlMcp() call with #if DEBUG) so
+    it never lands in the self-contained single-file Release publish below.
+  -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <PackageReference Include="XamlMcp.Wpf" Version="1.0.0-preview.2" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>

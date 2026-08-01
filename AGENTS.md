@@ -57,6 +57,14 @@ the app and delete that file — it's recreated via migrations next launch:
 Remove-Item "$env:AppData\PickMeWhatToListen\catalog.db"
 ```
 
+## Debugging the UI
+
+Run the app in Debug and an MCP client with the `xamlmcp` server (registered
+in `.cursor/mcp.json`) can attach and inspect/drive the live visual tree —
+see [docs/references/xamlmcp-wpf.md](docs/references/xamlmcp-wpf.md) for the
+attach wiring and gotchas (Debug-only, one instance/session at a time,
+node ids are single-snapshot).
+
 ## Workflow for any non-trivial change
 
 1. Add/update a spec in `docs/product-specs/`.

@@ -4,6 +4,9 @@ using Microsoft.Extensions.Hosting;
 using PickMeWhatToListen.Application;
 using PickMeWhatToListen.Infrastructure;
 using PickMeWhatToListen.Wpf.ViewModels;
+#if DEBUG
+using XamlMcp.Wpf;
+#endif
 
 namespace PickMeWhatToListen.Wpf;
 
@@ -21,6 +24,9 @@ public partial class App : System.Windows.Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+#if DEBUG
+        this.AttachXamlMcp();
+#endif
         base.OnStartup(e);
 
         var builder = Host.CreateApplicationBuilder();

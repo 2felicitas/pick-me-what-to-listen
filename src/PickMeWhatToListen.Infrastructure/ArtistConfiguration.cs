@@ -31,6 +31,28 @@ public sealed class ArtistConfiguration : IEntityTypeConfiguration<Artist>
         builder.Property(a => a.IsPicked)
             .IsRequired();
 
+        builder.Property(a => a.MusicBrainzArtistMbid)
+            .HasMaxLength(36);
+
+        builder.HasIndex(a => a.MusicBrainzArtistMbid)
+            .IsUnique();
+
+        builder.Property(a => a.WikidataUrl)
+            .HasMaxLength(512);
+
+        builder.Property(a => a.MetadataSyncStatus)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasDefaultValue(MetadataSyncStatus.None);
+
+        builder.Property(a => a.MetadataSyncedAtUtc)
+            .HasConversion(
+                v => v.HasValue ? v.Value.UtcTicks : (long?)null,
+                v => v.HasValue ? new DateTimeOffset(v.Value, TimeSpan.Zero) : null);
+
+        builder.Property(a => a.MetadataSyncError)
+            .HasMaxLength(2000);
+
         builder.HasIndex(a => a.IsPicked);
     }
 }

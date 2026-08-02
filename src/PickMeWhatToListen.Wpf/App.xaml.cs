@@ -29,6 +29,9 @@ public partial class App : System.Windows.Application
 #endif
         base.OnStartup(e);
 
+        var version = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "0.1.0";
+        HttpClientUserAgent.Configure(version, "https://github.com/2felicitas/pick-me-what-to-listen");
+
         var builder = Host.CreateApplicationBuilder();
         builder.Services.AddInfrastructure();
         builder.Services.AddTransient<ArtistCatalogService>();

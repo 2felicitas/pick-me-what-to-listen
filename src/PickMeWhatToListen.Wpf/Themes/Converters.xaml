@@ -17,5 +17,6 @@
     <converters:NullOrEmptyToVisibilityConverter x:Key="NullToVisibilityConverter"/>
     <converters:RowIsSelectedConverter x:Key="RowIsSelectedConverter"/>
     <converters:ResponsiveScaleConverter x:Key="ResponsiveScaleConverter"/>
+    <converters:StringUriToImageSourceConverter x:Key="StringUriToImageSourceConverter"/>
 
 </ResourceDictionary>

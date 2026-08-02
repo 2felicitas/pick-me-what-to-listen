@@ -19,6 +19,16 @@ public sealed class Artist
 
     public DateTimeOffset? PickedAtUtc { get; private set; }
 
+    public string? MusicBrainzArtistMbid { get; private set; }
+
+    public string? WikidataUrl { get; private set; }
+
+    public MetadataSyncStatus MetadataSyncStatus { get; private set; }
+
+    public DateTimeOffset? MetadataSyncedAtUtc { get; private set; }
+
+    public string? MetadataSyncError { get; private set; }
+
     private Artist(Guid id, string name, DateTimeOffset createdAtUtc)
     {
         Id = id;
@@ -47,6 +57,30 @@ public sealed class Artist
 
         IsPicked = true;
         PickedAtUtc = pickedAtUtc ?? DateTimeOffset.UtcNow;
+    }
+
+    public void AssignMusicBrainzIdentity(string mbid, string? wikidataUrl)
+    {
+        if (string.IsNullOrWhiteSpace(mbid))
+        {
+            throw new ArgumentException("MusicBrainz artist MBID cannot be empty.", nameof(mbid));
+        }
+
+        MusicBrainzArtistMbid = mbid;
+        WikidataUrl = wikidataUrl;
+    }
+
+    public void SetMetadataSyncStatus(MetadataSyncStatus status, string? error = null)
+    {
+        MetadataSyncStatus = status;
+        MetadataSyncError = error;
+    }
+
+    public void MarkMetadataSynced(DateTimeOffset? syncedAtUtc = null)
+    {
+        MetadataSyncedAtUtc = syncedAtUtc ?? DateTimeOffset.UtcNow;
+        MetadataSyncStatus = MetadataSyncStatus.Ok;
+        MetadataSyncError = null;
     }
 
     private static string NormalizeName(string name)

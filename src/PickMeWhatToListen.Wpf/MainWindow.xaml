@@ -151,13 +151,13 @@
         -->
         <Border Grid.Column="1" Padding="12" Style="{StaticResource SurfaceCardStyle}">
             <!--
-              NotifyOnTargetUpdated=True is required — without it Binding.TargetUpdated
-              never fires and the storyboard below never starts.
+              ProfilePanelTransitionKey changes only when the selected artist id
+              changes — not on background cover-art refreshes for the same artist.
             -->
             <Grid x:Name="DetailsContentPanel"
                   RenderTransformOrigin="0,0">
                 <Grid.Tag>
-                    <Binding NotifyOnTargetUpdated="True" Path="SelectedArtist"/>
+                    <Binding NotifyOnTargetUpdated="True" Path="ProfilePanelTransitionKey"/>
                 </Grid.Tag>
                 <Grid.RenderTransform>
                     <TranslateTransform Y="0"/>
@@ -200,6 +200,7 @@
                     </TextBlock.Style>
                 </TextBlock>
 
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel VerticalAlignment="Top">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
@@ -227,7 +228,138 @@
                     <TextBlock Margin="0,4,0,0"
                                Style="{StaticResource CaptionTextStyle}"
                                Text="{Binding SelectedArtist.CreatedAtUtc, StringFormat='В списке с {0:d MMMM yyyy}'}"/>
+
+                    <TextBlock Margin="0,8,0,0"
+                               Style="{StaticResource CaptionTextStyle}"
+                               Text="{Binding SelectedArtist.StatusMessage}"
+                               Visibility="{Binding SelectedArtist.StatusMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                    <TextBlock Margin="0,8,0,0"
+                               Style="{StaticResource CaptionTextStyle}"
+                               Text="Загрузка…"
+                               Visibility="{Binding SelectedArtist.IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <StackPanel Margin="0,12,0,0"
+                                Visibility="{Binding SelectedArtist.ShowAmbiguous, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl ItemsSource="{Binding SelectedArtist.AmbiguousCandidates}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Margin="0,0,0,6"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Style="{StaticResource LinkButtonStyle}"
+                                            Command="{Binding DataContext.ConfirmMusicBrainzMatchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{Binding Detail}"
+                                                       Style="{StaticResource CaptionTextStyle}"
+                                                       Visibility="{Binding Detail, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <TextBlock Margin="0,16,0,8"
+                               Text="Жанры"
+                               Style="{StaticResource SectionHeadingTextStyle}"
+                               Visibility="{Binding SelectedArtist.HasGenres, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <ItemsControl ItemsSource="{Binding SelectedArtist.Genres}"
+                                  Visibility="{Binding SelectedArtist.HasGenres, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource MetadataChipBorderStyle}">
+                                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource CaptionTextStyle}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Margin="0,8,0,8"
+                               Text="Теги"
+                               Style="{StaticResource SectionHeadingTextStyle}"
+                               Visibility="{Binding SelectedArtist.HasTags, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <ItemsControl ItemsSource="{Binding SelectedArtist.Tags}"
+                                  Visibility="{Binding SelectedArtist.HasTags, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource MetadataChipBorderStyle}">
+                                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource CaptionTextStyle}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Margin="0,8,0,8"
+                               Text="Дискография"
+                               Style="{StaticResource SectionHeadingTextStyle}"
+                               Visibility="{Binding SelectedArtist.HasReleaseGroups, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <ItemsControl ItemsSource="{Binding SelectedArtist.ReleaseGroups}"
+                                  Visibility="{Binding SelectedArtist.HasReleaseGroups, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource CoverPlaceholderBorderStyle}"
+                                            Visibility="{Binding ShowPlaceholder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <Image Grid.Column="0"
+                                           Width="48"
+                                           Height="48"
+                                           Stretch="UniformToFill"
+                                           Source="{Binding CoverArtUrl, Converter={StaticResource StringUriToImageSourceConverter}}">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ShowPlaceholder}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                    <TextBlock Grid.Column="1"
+                                               Margin="10,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding DisplayLine}"
+                                               TextWrapping="Wrap"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button Margin="0,12,0,0"
+                            Content="Обновить"
+                            Command="{Binding RefreshSelectedProfileCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource LinkButtonStyle}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedArtist.IsLoading}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Border>
     </Grid>

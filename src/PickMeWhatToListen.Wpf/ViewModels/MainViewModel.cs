@@ -4,11 +4,18 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using PickMeWhatToListen.Application;
+using PickMeWhatToListen.Application.Abstractions;
 
 namespace PickMeWhatToListen.Wpf.ViewModels;
 
-public sealed partial class MainViewModel(ArtistCatalogService catalogService) : ObservableObject
+public sealed partial class MainViewModel(
+    ArtistCatalogService catalogService,
+    ArtistProfileService profileService,
+    ICoverArtEnrichmentNotifier coverArtEnrichmentNotifier) : ObservableObject
 {
+    private CancellationTokenSource? _profileLoadCts;
+    private bool _coverArtNotifierRegistered;
+
     public ObservableCollection<ArtistRowViewModel> Artists { get; } = [];
 
     [ObservableProperty]
@@ -20,7 +27,23 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
     [ObservableProperty]
     private ArtistProfileViewModel? _selectedArtist;
 
-    public async Task InitializeAsync() => await ReloadArtistsAsync();
+    /// <summary>
+    /// Drives the profile-panel enter animation; updated only on artist switches,
+    /// not when background cover-art enrichment refreshes the same profile.
+    /// </summary>
+    [ObservableProperty]
+    private object? _profilePanelTransitionKey;
+
+    public async Task InitializeAsync()
+    {
+        if (!_coverArtNotifierRegistered)
+        {
+            coverArtEnrichmentNotifier.Register(OnArtistCoverArtUpdated);
+            _coverArtNotifierRegistered = true;
+        }
+
+        await ReloadArtistsAsync();
+    }
 
     [RelayCommand]
     private async Task AddArtistAsync()
@@ -91,9 +114,87 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
 
         // The result surfaces in the details panel (like clicking its row would),
         // not a separate banner — see docs/product-specs/visual-design-pass.md.
-        SelectedArtist = new ArtistProfileViewModel(result.Artist!);
         StatusMessage = null;
         await ReloadArtistsAsync();
+        await LoadProfileAsync(result.Artist!.Id);
+    }
+
+    [RelayCommand]
+    private async Task ConfirmMusicBrainzMatchAsync(MusicBrainzCandidateViewModel candidate)
+    {
+        var token = BeginProfileLoad();
+        var artist = (await catalogService.GetArtistByIdAsync(candidate.ArtistId))!;
+        SetSelectedArtist(ArtistProfileViewModel.Loading(artist));
+
+        try
+        {
+            var result = await profileService.ConfirmMusicBrainzMatchAsync(candidate.ArtistId, candidate.Mbid, token);
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (!result.Found || result.Profile is null)
+            {
+                SetSelectedArtist(null);
+                return;
+            }
+
+            SetSelectedArtist(ArtistProfileViewModel.FromResult(result));
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            if (!token.IsCancellationRequested)
+            {
+                SetSelectedArtist(new ArtistProfileViewModel(artist, [], [], [], [], isLoading: false, statusMessage: ex.Message));
+            }
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshSelectedProfileAsync()
+    {
+        if (SelectedArtist is null)
+        {
+            return;
+        }
+
+        var artistId = SelectedArtist.Id;
+        var token = BeginProfileLoad();
+        var artist = await catalogService.GetArtistByIdAsync(artistId);
+        if (artist is null)
+        {
+            SetSelectedArtist(null);
+            return;
+        }
+
+        SetSelectedArtist(ArtistProfileViewModel.Loading(artist));
+
+        try
+        {
+            var result = await profileService.ForceRefreshAsync(artistId, token);
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            SetSelectedArtist(result.Found && result.Profile is not null
+                ? ArtistProfileViewModel.FromResult(result)
+                : null);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            if (!token.IsCancellationRequested)
+            {
+                SetSelectedArtist(new ArtistProfileViewModel(artist, [], [], [], [], isLoading: false, statusMessage: ex.Message));
+            }
+        }
     }
 
     [RelayCommand]
@@ -101,12 +202,121 @@ public sealed partial class MainViewModel(ArtistCatalogService catalogService) :
     {
         if (SelectedArtist?.Id == id)
         {
-            SelectedArtist = null;
+            SetSelectedArtist(null);
             return;
         }
 
         var artist = await catalogService.GetArtistByIdAsync(id);
-        SelectedArtist = artist is null ? null : new ArtistProfileViewModel(artist);
+        if (artist is null)
+        {
+            SetSelectedArtist(null);
+            return;
+        }
+
+        await LoadProfileAsync(id);
+    }
+
+    private async Task LoadProfileAsync(Guid artistId)
+    {
+        var token = BeginProfileLoad();
+
+        try
+        {
+            var artist = await catalogService.GetArtistByIdAsync(artistId);
+            if (artist is null)
+            {
+                SetSelectedArtist(null);
+                return;
+            }
+
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            SetSelectedArtist(ArtistProfileViewModel.Loading(artist));
+            var result = await profileService.GetProfileAsync(artistId, token);
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (!result.Found || result.Profile is null)
+            {
+                SetSelectedArtist(null);
+                return;
+            }
+
+            SetSelectedArtist(ArtistProfileViewModel.FromResult(result));
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            var artist = await catalogService.GetArtistByIdAsync(artistId);
+            SetSelectedArtist(artist is null
+                ? null
+                : new ArtistProfileViewModel(artist, [], [], [], [], isLoading: false, statusMessage: ex.Message));
+        }
+    }
+
+    private void SetSelectedArtist(ArtistProfileViewModel? profile)
+    {
+        var previousId = SelectedArtist?.Id;
+        SelectedArtist = profile;
+
+        if (previousId != profile?.Id)
+        {
+            ProfilePanelTransitionKey = profile?.Id ?? Guid.Empty;
+        }
+    }
+
+    private CancellationToken BeginProfileLoad()
+    {
+        _profileLoadCts?.Cancel();
+        _profileLoadCts?.Dispose();
+        _profileLoadCts = new CancellationTokenSource();
+        return _profileLoadCts.Token;
+    }
+
+    private void OnArtistCoverArtUpdated(Guid artistId)
+    {
+        if (SelectedArtist?.Id != artistId)
+        {
+            return;
+        }
+
+        _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(RefreshSelectedArtistFromCacheAsync);
+    }
+
+    private async Task RefreshSelectedArtistFromCacheAsync()
+    {
+        var artistId = SelectedArtist?.Id;
+        if (artistId is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var result = await profileService.GetCachedProfileAsync(artistId.Value);
+            if (result?.Found != true || result.Profile is null || SelectedArtist?.Id != artistId)
+            {
+                return;
+            }
+
+            SelectedArtist = ArtistProfileViewModel.FromResult(result);
+        }
+        catch
+        {
+            // Background refresh — ignore.
+        }
     }
 
     private async Task ReloadArtistsAsync()
